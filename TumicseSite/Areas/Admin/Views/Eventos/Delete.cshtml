@@ -1,0 +1,55 @@
+@model AdminEventoDeleteViewModel
+@{
+    ViewData["Title"] = "Admin - Excluir Evento";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/agenda.css" asp-append-version="true" />
+}
+
+<section class="admin-shell">
+    <div class="admin-shell__header">
+        <span class="admin-shell__eyebrow">Administracao</span>
+        <h1 class="admin-shell__title">Excluir evento</h1>
+        <p class="admin-shell__subtitle">Confirme a exclusao apenas se este compromisso realmente nao deve mais existir no calendario da casa.</p>
+    </div>
+
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="admin-delete">
+        <dl>
+            <div>
+                <dt>Titulo</dt>
+                <dd>@Model.Title</dd>
+            </div>
+            <div>
+                <dt>Tipo</dt>
+                <dd>@Model.EventType</dd>
+            </div>
+            <div>
+                <dt>Inicio</dt>
+                <dd>@Model.StartsAtLabel</dd>
+            </div>
+            <div>
+                <dt>Visibilidade</dt>
+                <dd>@Model.VisibilityLabel</dd>
+            </div>
+            <div>
+                <dt>Situacao</dt>
+                <dd>
+                    @if (Model.IsCancelled)
+                    {
+                        <span class="agenda-badge agenda-badge--cancelled">Cancelado</span>
+                    }
+                    else
+                    {
+                        <span class="agenda-badge agenda-badge--active">Ativo</span>
+                    }
+                </dd>
+            </div>
+        </dl>
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <button type="submit" class="btn btn-danger">Excluir evento</button>
+            <a class="btn btn-brand-secondary" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</section>

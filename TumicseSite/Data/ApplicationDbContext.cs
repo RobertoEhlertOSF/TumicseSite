@@ -100,6 +100,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(item => item.Description)
                 .HasMaxLength(4000);
 
+            entity.Property(item => item.EventType)
+                .HasMaxLength(120)
+                .IsRequired();
+
             entity.Property(item => item.Location)
                 .HasMaxLength(200);
 
@@ -109,8 +113,22 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(item => item.GoogleMapsUrl)
                 .HasMaxLength(500);
 
+            entity.Property(item => item.IsPublic)
+                .HasDefaultValue(true);
+
+            entity.Property(item => item.IsActive)
+                .HasDefaultValue(true);
+
+            entity.Property(item => item.IsCancelled)
+                .HasDefaultValue(false);
+
+            entity.Property(item => item.InternalNotes)
+                .HasMaxLength(4000);
+
             entity.Property(item => item.CreatedAt)
                 .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+            entity.HasIndex(item => item.StartsAt);
         });
 
         builder.Entity<LandingSection>(entity =>

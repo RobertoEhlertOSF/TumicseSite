@@ -1,0 +1,99 @@
+@model AdminEventoDetailsViewModel
+@{
+    ViewData["Title"] = "Admin - Detalhes do Evento";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/agenda.css" asp-append-version="true" />
+}
+
+<section class="admin-shell">
+    <div class="admin-shell__header">
+        <span class="admin-shell__eyebrow">Administracao</span>
+        <h1 class="admin-shell__title">@Model.Title</h1>
+        <p class="admin-shell__subtitle">Confira os detalhes completos deste compromisso antes de editar ou remover o registro.</p>
+    </div>
+
+    <div class="agenda-admin-details">
+        <dl>
+            <div>
+                <dt>Tipo</dt>
+                <dd>@Model.EventType</dd>
+            </div>
+            <div>
+                <dt>Inicio</dt>
+                <dd>@Model.StartsAtLabel</dd>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.EndsAtLabel))
+            {
+                <div>
+                    <dt>Termino</dt>
+                    <dd>@Model.EndsAtLabel</dd>
+                </div>
+            }
+            <div>
+                <dt>Visibilidade</dt>
+                <dd>
+                    <span class="agenda-badge @(Model.VisibilityLabel == "Publico" ? "agenda-badge--public" : "agenda-badge--internal")">
+                        @Model.VisibilityLabel
+                    </span>
+                </dd>
+            </div>
+            <div>
+                <dt>Estado</dt>
+                <dd class="agenda-admin-status">
+                    @if (Model.IsActive && !Model.IsCancelled)
+                    {
+                        <span class="agenda-badge agenda-badge--active">Ativo</span>
+                    }
+                    @if (!Model.IsActive)
+                    {
+                        <span class="agenda-badge agenda-badge--inactive">Inativo</span>
+                    }
+                    @if (Model.IsCancelled)
+                    {
+                        <span class="agenda-badge agenda-badge--cancelled">Cancelado</span>
+                    }
+                </dd>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Location))
+            {
+                <div>
+                    <dt>Local</dt>
+                    <dd>@Model.Location</dd>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div>
+                    <dt>Descricao</dt>
+                    <dd>@Model.Description</dd>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.InternalNotes))
+            {
+                <div>
+                    <dt>Observacoes internas</dt>
+                    <dd>@Model.InternalNotes</dd>
+                </div>
+            }
+            <div>
+                <dt>Criado em</dt>
+                <dd>@Model.CreatedAtLabel</dd>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.UpdatedAtLabel))
+            {
+                <div>
+                    <dt>Atualizado em</dt>
+                    <dd>@Model.UpdatedAtLabel</dd>
+                </div>
+            }
+        </dl>
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <a class="btn btn-brand-primary" asp-action="Edit" asp-route-id="@Model.Id">Editar evento</a>
+            <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@Model.Id">Excluir</a>
+            <a class="btn btn-brand-secondary" asp-action="Index">Voltar</a>
+        </div>
+    </div>
+</section>

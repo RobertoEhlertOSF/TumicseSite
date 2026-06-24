@@ -1,0 +1,109 @@
+@model AdminEventoFormViewModel
+@{
+    ViewData["Title"] = "Admin - Novo Evento";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/agenda.css" asp-append-version="true" />
+}
+
+<section class="admin-shell">
+    <div class="admin-shell__header">
+        <span class="admin-shell__eyebrow">Administracao</span>
+        <h1 class="admin-shell__title">Cadastrar evento</h1>
+        <p class="admin-shell__subtitle">Preencha os dados essenciais da atividade e escolha se ela sera publica ou restrita a mediuns e administracao.</p>
+    </div>
+
+    <form asp-action="Create" method="post" class="admin-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EventType" class="form-label"></label>
+            <select asp-for="EventType" asp-items="Model.EventTypes" class="form-select">
+                <option value="">Selecione um tipo</option>
+            </select>
+            <span asp-validation-for="EventType" class="text-danger"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="StartsAtLocal" class="form-label"></label>
+                <input asp-for="StartsAtLocal" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
+                <span asp-validation-for="StartsAtLocal" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EndsAtLocal" class="form-label"></label>
+                <input asp-for="EndsAtLocal" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
+                <span asp-validation-for="EndsAtLocal" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3 mt-3">
+            <label asp-for="Location" class="form-label"></label>
+            <input asp-for="Location" class="form-control" />
+            <span asp-validation-for="Location" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            <div class="admin-hint mt-2">Descricao opcional, mas recomendada para orientar visitantes e mediuns.</div>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="InternalNotes" class="form-label"></label>
+            <textarea asp-for="InternalNotes" class="form-control" rows="3"></textarea>
+            <div class="admin-hint mt-2">Esse campo aparece apenas na agenda interna e na area administrativa.</div>
+            <span asp-validation-for="InternalNotes" class="text-danger"></span>
+        </div>
+
+        <div class="mb-4">
+            <span class="form-label d-block mb-2">Visibilidade</span>
+            <div class="agenda-admin-choice-grid">
+                <label class="agenda-admin-choice">
+                    <input type="radio" asp-for="IsPublic" value="true" class="form-check-input" />
+                    <span class="agenda-admin-choice__title">Publico</span>
+                    <span class="agenda-admin-choice__text">Pode aparecer para qualquer visitante em <code>/Agenda</code>.</span>
+                </label>
+                <label class="agenda-admin-choice">
+                    <input type="radio" asp-for="IsPublic" value="false" class="form-check-input" />
+                    <span class="agenda-admin-choice__title">Interno</span>
+                    <span class="agenda-admin-choice__text">Fica visivel apenas em <code>/Agenda/Interna</code> para Admin e Medium.</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="agenda-admin-toggle-grid mb-4">
+            <label class="agenda-admin-toggle">
+                <input asp-for="IsActive" class="form-check-input" />
+                <span>
+                    <strong>Ativo</strong>
+                    <small>Eventos inativos ficam ocultos das agendas.</small>
+                </span>
+            </label>
+            <label class="agenda-admin-toggle">
+                <input asp-for="IsCancelled" class="form-check-input" />
+                <span>
+                    <strong>Cancelado</strong>
+                    <small>Compromissos cancelados recebem destaque visual na agenda interna.</small>
+                </span>
+            </label>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-brand-primary">Salvar evento</button>
+            <a class="btn btn-brand-secondary" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

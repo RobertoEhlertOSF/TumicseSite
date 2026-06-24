@@ -6,15 +6,41 @@
 <ul class="navbar-nav align-items-lg-center gap-lg-2 site-auth">
 @if (SignInManager.IsSignedIn(User))
 {
-    <li class="nav-item">
-        <a class="nav-link site-nav__link site-auth__user" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gerenciar conta">
+    var canAccessProtectedAreas =
+        User.IsInRole(TumicseSite.Data.IdentityRoles.Admin) ||
+        User.IsInRole(TumicseSite.Data.IdentityRoles.Medium);
+    var isAdmin =
+        User.IsInRole(TumicseSite.Data.IdentityRoles.Admin);
+    <li class="nav-item dropdown">
+        <button class="btn btn-brand-outline dropdown-toggle site-auth__menu-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
             @User.Identity?.Name
-        </a>
-    </li>
-    <li class="nav-item">
-        <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button type="submit" class="btn btn-link nav-link site-nav__link site-auth__logout">Sair</button>
-        </form>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end site-auth__menu">
+            @if (canAccessProtectedAreas)
+            {
+                <li>
+                    <a class="dropdown-item" asp-area="" asp-controller="Membros" asp-action="Index">Area de membros</a>
+                </li>
+            }
+            @if (isAdmin)
+            {
+                <li>
+                    <a class="dropdown-item" asp-area="Admin" asp-controller="Eventos" asp-action="Index">Administracao</a>
+                </li>
+            }
+            <li>
+                <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gerenciar conta">Minha conta</a>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                    <button type="submit" class="dropdown-item">Sair</button>
+                </form>
+            </li>
+        </ul>
     </li>
 }
 else

@@ -31,12 +31,15 @@
     var isAulasPage =
         string.IsNullOrWhiteSpace(currentArea) &&
         string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Aulas", System.StringComparison.OrdinalIgnoreCase);
-    var canAccessLessons =
+    var isAgendaPage =
+        string.IsNullOrWhiteSpace(currentArea) &&
+        string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Agenda", System.StringComparison.OrdinalIgnoreCase);
+    var isMembersPage =
+        string.IsNullOrWhiteSpace(currentArea) &&
+        string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Membros", System.StringComparison.OrdinalIgnoreCase);
+    var canAccessMembersArea =
         User.Identity?.IsAuthenticated == true &&
         (User.IsInRole(TumicseSite.Data.IdentityRoles.Admin) || User.IsInRole(TumicseSite.Data.IdentityRoles.Medium));
-    var isAdmin =
-        User.Identity?.IsAuthenticated == true &&
-        User.IsInRole(TumicseSite.Data.IdentityRoles.Admin);
 }
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -77,16 +80,13 @@
                         <li class="nav-item">
                             <a class="nav-link site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="giras">Giras</a>
                         </li>
-                        @if (canAccessLessons)
+                        <li class="nav-item">
+                            <a class="nav-link site-nav__link" asp-area="" asp-controller="Agenda" asp-action="Index">Agenda</a>
+                        </li>
+                        @if (canAccessMembersArea)
                         {
                             <li class="nav-item">
-                                <a class="nav-link site-nav__link" asp-area="" asp-controller="Aulas" asp-action="Index">Aulas</a>
-                            </li>
-                        }
-                        @if (isAdmin)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link site-nav__link" asp-area="Admin" asp-controller="Aulas" asp-action="Index">Admin</a>
+                                <a class="nav-link site-nav__link" asp-area="" asp-controller="Membros" asp-action="Index">Membros</a>
                             </li>
                         }
                         <li class="nav-item">
@@ -100,7 +100,7 @@
     </header>
 
     <main role="main" class="site-main">
-        @if (isHomePage || isClassesPage || isAulasPage)
+        @if (isHomePage || isClassesPage || isAulasPage || isAgendaPage || isMembersPage)
         {
             @RenderBody()
         }
@@ -124,6 +124,7 @@
                     </div>
                 </div>
                 <div class="site-footer__links">
+                    <a asp-area="" asp-controller="Agenda" asp-action="Index">Agenda</a>
                     <a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="giras">Giras</a>
                     <a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="localizacao">Localização</a>
                     <a href="https://www.instagram.com/tumicse_oficial/" target="_blank" rel="noopener noreferrer">Instagram</a>

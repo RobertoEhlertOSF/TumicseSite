@@ -122,23 +122,38 @@ footer[id] {
   margin-left: 0;
 }
 
-.site-auth__user {
+.site-auth__login {
+  margin-top: 0.5rem;
+}
+
+.site-auth__menu-toggle {
+  min-height: 2.8rem;
   white-space: nowrap;
 }
 
-.site-auth__logout {
-  padding: 0.5rem 0.9rem;
-  color: var(--brand-navy);
-  text-decoration: none;
+.site-auth__menu {
+  min-width: 13rem;
+  padding: 0.45rem;
+  border: 1px solid rgba(41, 39, 111, 0.1);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.98);
 }
 
-.site-auth__logout:hover,
-.site-auth__logout:focus {
+.site-auth__menu .dropdown-item {
+  border-radius: 0.75rem;
+  color: var(--brand-text);
+  font-weight: 600;
+  padding: 0.7rem 0.85rem;
+}
+
+.site-auth__menu .dropdown-item:hover,
+.site-auth__menu .dropdown-item:focus {
   color: var(--brand-green-deep);
+  background: rgba(0, 152, 70, 0.08);
 }
 
-.site-auth__login {
-  margin-top: 0.5rem;
+.site-auth__menu .dropdown-divider {
+  margin: 0.35rem 0;
 }
 
 .site-footer {

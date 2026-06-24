@@ -1,0 +1,110 @@
+@model AgendaIndexViewModel
+@{
+    ViewData["Title"] = "Agenda";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/agenda.css" asp-append-version="true" />
+}
+
+<section class="agenda-page">
+    <div class="agenda-hero">
+        <div class="container">
+            <div class="agenda-hero__panel">
+                <span class="agenda-hero__eyebrow">@Model.Eyebrow</span>
+                <div class="agenda-hero__content">
+                    <div>
+                        <h1 class="agenda-hero__title">@Model.Title</h1>
+                        <p class="agenda-hero__subtitle">@Model.Subtitle</p>
+                    </div>
+                    <div class="agenda-hero__summary">
+                        <span class="agenda-hero__pill">@Model.EventCount evento@(Model.EventCount == 1 ? string.Empty : "s") futuro@(Model.EventCount == 1 ? string.Empty : "s")</span>
+                        <span class="agenda-hero__pill agenda-hero__pill--soft">Somente compromissos publicos ativos</span>
+                    </div>
+                    @if (User.Identity?.IsAuthenticated == true &&
+                        (User.IsInRole(TumicseSite.Data.IdentityRoles.Admin) || User.IsInRole(TumicseSite.Data.IdentityRoles.Medium)))
+                    {
+                        <div class="agenda-hero__actions">
+                            <a class="btn btn-brand-primary" asp-controller="Membros" asp-action="Index">Area de membros</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        @if (Model.Months.Count > 0)
+        {
+            <div class="agenda-months">
+                @foreach (var month in Model.Months)
+                {
+                    <section class="agenda-month">
+                        <div class="agenda-month__header">
+                            <span class="agenda-month__eyebrow">Calendario</span>
+                            <h2 class="agenda-month__title">@month.MonthLabel</h2>
+                        </div>
+
+                        <div class="agenda-card-grid">
+                            @foreach (var item in month.Events)
+                            {
+                                <article class="agenda-card @(item.IsPublic ? "is-public" : "is-internal") @(item.IsCancelled ? "is-cancelled" : string.Empty)">
+                                    <div class="agenda-card__date">
+                                        <span class="agenda-card__day">@item.DayLabel</span>
+                                        <span class="agenda-card__month">@item.MonthShortLabel</span>
+                                    </div>
+
+                                    <div class="agenda-card__body">
+                                        <div class="agenda-card__meta">
+                                            <span>@item.WeekdayLabel</span>
+                                            <span>@item.TimeLabel</span>
+                                        </div>
+
+                                        <div class="agenda-card__badges">
+                                            <span class="agenda-badge agenda-badge--type">@item.EventType</span>
+                                            <span class="agenda-badge @(item.IsPublic ? "agenda-badge--public" : "agenda-badge--internal")">
+                                                @(item.IsPublic ? "Publico" : "Interno")
+                                            </span>
+                                            @if (item.IsCancelled)
+                                            {
+                                                <span class="agenda-badge agenda-badge--cancelled">Cancelado</span>
+                                            }
+                                        </div>
+
+                                        <h3 class="agenda-card__title">@item.Title</h3>
+
+                                        @if (!string.IsNullOrWhiteSpace(item.Description))
+                                        {
+                                            <p class="agenda-card__text">@item.Description</p>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(item.Location))
+                                        {
+                                            <p class="agenda-card__location">Local: @item.Location</p>
+                                        }
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    </section>
+                }
+            </div>
+        }
+        else
+        {
+            <section class="agenda-empty">
+                <div class="agenda-empty__panel">
+                    <span class="agenda-empty__eyebrow">@Model.Eyebrow</span>
+                    <h2 class="agenda-empty__title">@Model.EmptyTitle</h2>
+                    <p class="agenda-empty__text">@Model.EmptyMessage</p>
+                    @if (!string.IsNullOrWhiteSpace(Model.HelperLinkUrl) && !string.IsNullOrWhiteSpace(Model.HelperLinkLabel))
+                    {
+                        <a class="btn btn-brand-secondary" href="@Model.HelperLinkUrl" target="_blank" rel="noopener noreferrer">
+                            Consultar @Model.HelperLinkLabel
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+</section>
