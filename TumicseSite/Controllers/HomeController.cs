@@ -99,54 +99,10 @@ public class HomeController(ISiteSettingsService siteSettingsService) : Controll
         return View(model);
     }
 
-    [Authorize]
-    public IActionResult Classes(string? lesson)
+    [Authorize(Roles = "Admin,Medium")]
+    public IActionResult Classes()
     {
-        var lessonCatalog = BuildLessonCatalog();
-        var defaultLesson = lessonCatalog.SelectMany(group => group.Lessons).First();
-        var selectedLesson = lessonCatalog
-            .SelectMany(group => group.Lessons)
-            .FirstOrDefault(item => string.Equals(item.Slug, lesson, StringComparison.OrdinalIgnoreCase))
-            ?? defaultLesson;
-
-        var model = new ClassesIndexViewModel
-        {
-            HeroHighlights =
-            [
-                "Acesso protegido",
-                "Aulas 2020 e 2021",
-                "Estudo com fundamento"
-            ],
-            SelectedLesson = new LessonItemViewModel
-            {
-                Slug = selectedLesson.Slug,
-                Title = selectedLesson.Title,
-                YearLabel = selectedLesson.YearLabel,
-                Summary = selectedLesson.Summary,
-                YouTubeVideoId = selectedLesson.YouTubeVideoId,
-                IsSelected = true
-            },
-            LessonGroups = lessonCatalog
-                .Select(group => new LessonGroupViewModel
-                {
-                    Title = group.Title,
-                    IsExpanded = group.Lessons.Any(item => item.Slug == selectedLesson.Slug),
-                    Lessons = group.Lessons
-                        .Select(item => new LessonItemViewModel
-                        {
-                            Slug = item.Slug,
-                            Title = item.Title,
-                            YearLabel = item.YearLabel,
-                            Summary = item.Summary,
-                            YouTubeVideoId = item.YouTubeVideoId,
-                            IsSelected = item.Slug == selectedLesson.Slug
-                        })
-                        .ToArray()
-                })
-                .ToArray()
-        };
-
-        return View(model);
+        return RedirectToAction("Index", "Aulas");
     }
 
     public IActionResult Privacy()

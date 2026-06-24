@@ -21,13 +21,22 @@
 
     var pageTitle = ViewData["Title"]?.ToString();
     var title = string.IsNullOrWhiteSpace(pageTitle) ? siteName : $"{pageTitle} - {siteName}";
+    var currentArea = ViewContext.RouteData.Values["area"]?.ToString();
     var isHomePage =
         string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", System.StringComparison.OrdinalIgnoreCase) &&
         string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", System.StringComparison.OrdinalIgnoreCase);
     var isClassesPage =
         string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", System.StringComparison.OrdinalIgnoreCase) &&
         string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Classes", System.StringComparison.OrdinalIgnoreCase);
-    var classesReturnUrl = Url.Action("Classes", "Home") ?? "/Home/Classes";
+    var isAulasPage =
+        string.IsNullOrWhiteSpace(currentArea) &&
+        string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Aulas", System.StringComparison.OrdinalIgnoreCase);
+    var canAccessLessons =
+        User.Identity?.IsAuthenticated == true &&
+        (User.IsInRole(TumicseSite.Data.IdentityRoles.Admin) || User.IsInRole(TumicseSite.Data.IdentityRoles.Medium));
+    var isAdmin =
+        User.Identity?.IsAuthenticated == true &&
+        User.IsInRole(TumicseSite.Data.IdentityRoles.Admin);
 }
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -68,16 +77,18 @@
                         <li class="nav-item">
                             <a class="nav-link site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="giras">Giras</a>
                         </li>
-                        <li class="nav-item">
-                            @if (User.Identity?.IsAuthenticated ?? false)
-                            {
-                                <a class="nav-link site-nav__link" asp-area="" asp-controller="Home" asp-action="Classes">Aulas</a>
-                            }
-                            else
-                            {
-                                <a class="nav-link site-nav__link" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@classesReturnUrl">Aulas</a>
-                            }
-                        </li>
+                        @if (canAccessLessons)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link site-nav__link" asp-area="" asp-controller="Aulas" asp-action="Index">Aulas</a>
+                            </li>
+                        }
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link site-nav__link" asp-area="Admin" asp-controller="Aulas" asp-action="Index">Admin</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="localizacao">Localização</a>
                         </li>
@@ -89,7 +100,7 @@
     </header>
 
     <main role="main" class="site-main">
-        @if (isHomePage || isClassesPage)
+        @if (isHomePage || isClassesPage || isAulasPage)
         {
             @RenderBody()
         }

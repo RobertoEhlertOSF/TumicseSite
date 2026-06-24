@@ -1,0 +1,122 @@
+@model AulasIndexViewModel
+@{
+    ViewData["Title"] = "Aulas";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/aulas.css" asp-append-version="true" />
+}
+
+<section class="aulas-page">
+    <div class="container">
+        <section class="aulas-intro">
+            <div class="aulas-intro__panel">
+                <span class="aulas-intro__eyebrow">Area reservada</span>
+                <h1 class="aulas-intro__title">@Model.PageTitle</h1>
+                <p class="aulas-intro__subtitle">@Model.PageSubtitle</p>
+                <p class="aulas-intro__description">@Model.PageDescription</p>
+            </div>
+        </section>
+
+        <section class="aulas-topics" aria-label="Selecao de topicos">
+            <div class="aulas-topics__panel">
+                <div class="aulas-topics__header">
+                    <h2 class="aulas-topics__title">Topicos de estudo</h2>
+                    <p class="aulas-topics__hint">Escolha um topico para abrir a lista de aulas. Os demais permanecem recolhidos para deixar a navegacao mais leve.</p>
+                </div>
+
+                <div class="aulas-topics__list">
+                    @foreach (var filter in Model.Filters)
+                    {
+                        var fragment = filter.Slug is null ? null : $"categoria-{filter.Slug}";
+                        <a class="aulas-topics__chip @(filter.IsSelected ? "is-active" : string.Empty)"
+                           asp-action="Index"
+                           asp-route-categoria="@filter.Slug"
+                           asp-fragment="@fragment">
+                            <span>@filter.Label</span>
+                            <span class="aulas-topics__count">@filter.LessonCount</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="aulas-catalog">
+            @if (Model.HasLessons)
+            {
+                <div class="accordion aulas-accordion" id="aulasAccordion">
+                    @for (var index = 0; index < Model.Categories.Count; index++)
+                    {
+                        var category = Model.Categories[index];
+                        var headingId = $"heading-{category.Slug}";
+                        var collapseId = $"collapse-{category.Slug}";
+                        var isExpanded = Model.SelectedCategorySlug is not null
+                            ? string.Equals(Model.SelectedCategorySlug, category.Slug, StringComparison.OrdinalIgnoreCase)
+                            : index == 0;
+
+                        <article class="accordion-item aulas-accordion__item" id="categoria-@category.Slug">
+                            <h2 class="accordion-header" id="@headingId">
+                                <button class="accordion-button aulas-accordion__button @(isExpanded ? string.Empty : "collapsed")"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#@collapseId"
+                                        aria-expanded="@(isExpanded ? "true" : "false")"
+                                        aria-controls="@collapseId">
+                                    <span class="aulas-accordion__button-copy">
+                                        <span class="aulas-accordion__eyebrow">Topico</span>
+                                        <span class="aulas-accordion__title">@category.Name</span>
+                                    </span>
+                                    <span class="aulas-accordion__badge">
+                                        @category.LessonCount aula@(category.LessonCount == 1 ? string.Empty : "s")
+                                    </span>
+                                </button>
+                            </h2>
+
+                            <div id="@collapseId"
+                                 class="accordion-collapse collapse @(isExpanded ? "show" : string.Empty)"
+                                 aria-labelledby="@headingId"
+                                 data-bs-parent="#aulasAccordion">
+                                <div class="accordion-body aulas-accordion__body">
+                                    <div class="aulas-lesson-list">
+                                        @foreach (var lesson in category.Lessons)
+                                        {
+                                            <article class="aulas-lesson-row">
+                                                <div class="aulas-lesson-row__main">
+                                                    <p class="aulas-lesson-row__meta">Publicada em @lesson.PublishedAtLabel</p>
+                                                    <h3 class="aulas-lesson-row__title">@lesson.Title</h3>
+                                                </div>
+                                                <div class="aulas-lesson-row__actions">
+                                                    <a class="btn btn-brand-primary"
+                                                       asp-action="Details"
+                                                       asp-route-id="@lesson.Id"
+                                                       asp-route-categoria="@category.Slug">Assistir aula</a>
+                                                </div>
+                                            </article>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="aulas-empty__panel">
+                    <span class="aulas-empty__eyebrow">Catalogo vazio</span>
+                    <h2 class="aulas-empty__title">Nenhuma aula disponivel no momento.</h2>
+                    <p class="aulas-empty__text">
+                        @if (!string.IsNullOrWhiteSpace(Model.SelectedCategoryName))
+                        {
+                            <span>Nenhuma aula foi cadastrada para o topico @Model.SelectedCategoryName.</span>
+                        }
+                        else
+                        {
+                            <span>Assim que novas aulas forem cadastradas, elas aparecerao aqui organizadas por topico.</span>
+                        }
+                    </p>
+                </div>
+            }
+        </section>
+    </div>
+</section>

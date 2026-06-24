@@ -1,0 +1,41 @@
+@model AdminVideoCategoryFormViewModel
+@{
+    ViewData["Title"] = "Admin - Nova Categoria";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/aulas.css" asp-append-version="true" />
+}
+
+<section class="admin-shell">
+    <div class="admin-shell__header">
+        <span class="admin-shell__eyebrow">Administracao</span>
+        <h1 class="admin-shell__title">Cadastrar categoria</h1>
+        <p class="admin-shell__subtitle">Defina o nome da categoria e a ordem em que ela deve aparecer no catalogo das aulas.</p>
+    </div>
+
+    <form asp-action="Create" method="post" class="admin-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="DisplayOrder" class="form-label"></label>
+            <input asp-for="DisplayOrder" class="form-control" />
+            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-brand-primary">Salvar categoria</button>
+            <a class="btn btn-brand-secondary" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

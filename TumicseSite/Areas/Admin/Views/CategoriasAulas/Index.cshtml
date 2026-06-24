@@ -1,0 +1,69 @@
+@model AdminCategoriasIndexViewModel
+@{
+    ViewData["Title"] = "Admin - Categorias";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/aulas.css" asp-append-version="true" />
+}
+
+<section class="admin-shell">
+    <div class="admin-shell__header">
+        <span class="admin-shell__eyebrow">Administracao</span>
+        <h1 class="admin-shell__title">Gerenciar categorias</h1>
+        <p class="admin-shell__subtitle">Organize as categorias exibidas na area de aulas e mantenha a ordem de apresentacao do catalogo.</p>
+    </div>
+
+    @if (TempData["StatusMessage"] is string statusMessage)
+    {
+        <div class="alert admin-status mb-0" role="status">@statusMessage</div>
+    }
+
+    <div class="admin-shell__actions">
+        <a class="btn btn-brand-primary" asp-action="Create">Nova categoria</a>
+        <a class="btn btn-brand-secondary" asp-area="Admin" asp-controller="Aulas" asp-action="Index">Voltar para aulas</a>
+    </div>
+
+    <div class="admin-shell__table">
+        @if (Model.Categories.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Ordem</th>
+                            <th>Aulas vinculadas</th>
+                            <th>Criada em</th>
+                            <th class="text-end">Acoes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <tr>
+                                <td>@category.Name</td>
+                                <td>@category.DisplayOrder</td>
+                                <td>@category.LessonCount</td>
+                                <td>@category.CreatedAtLabel</td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@category.Id">Editar</a>
+                                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@category.Id">Excluir</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="admin-shell__panel">
+                <h2 class="admin-shell__title h4">Nenhuma categoria cadastrada.</h2>
+                <p class="admin-shell__subtitle">Crie a primeira categoria para organizar o catalogo de aulas.</p>
+            </div>
+        }
+    </div>
+</section>

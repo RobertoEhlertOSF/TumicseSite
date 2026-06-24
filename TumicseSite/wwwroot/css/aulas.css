@@ -1,0 +1,444 @@
+.aulas-page {
+  padding: 2rem 0 0;
+  background:
+    radial-gradient(circle at top right, rgba(242, 183, 5, 0.08), transparent 20%),
+    linear-gradient(180deg, #fbf8f3 0%, #f6f1e7 100%);
+}
+
+.aulas-page .container {
+  position: relative;
+  z-index: 1;
+}
+
+.aulas-intro__panel,
+.aulas-topics__panel,
+.aulas-accordion__item,
+.aulas-empty__panel,
+.aulas-detail__player-card,
+.aulas-detail__panel {
+  border: 1px solid rgba(84, 65, 49, 0.1);
+  border-radius: var(--brand-radius);
+  background: rgba(255, 252, 246, 0.96);
+  box-shadow: 0 18px 36px rgba(54, 42, 32, 0.08);
+}
+
+.aulas-intro__panel,
+.aulas-topics__panel,
+.aulas-empty__panel {
+  padding: 1.5rem;
+}
+
+.aulas-intro__eyebrow,
+.aulas-empty__eyebrow,
+.aulas-detail__eyebrow,
+.aulas-accordion__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  color: #9b7a33;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.aulas-intro__title,
+.aulas-topics__title,
+.aulas-empty__title,
+.aulas-detail__title,
+.aulas-detail__panel-title,
+.aulas-accordion__title,
+.aulas-lesson-row__title {
+  color: #2e3140;
+}
+
+.aulas-intro__title {
+  margin-bottom: 0.85rem;
+  font-size: clamp(2rem, 6vw, 3.35rem);
+  line-height: 1.08;
+}
+
+.aulas-intro__subtitle,
+.aulas-intro__description,
+.aulas-topics__hint,
+.aulas-empty__text,
+.aulas-detail__copy,
+.aulas-detail__meta,
+.aulas-detail__empty,
+.aulas-lesson-row__meta {
+  color: #6d645a;
+  line-height: 1.75;
+}
+
+.aulas-intro__subtitle {
+  margin-bottom: 0.75rem;
+  color: #4f5846;
+  font-weight: 600;
+}
+
+.aulas-topics {
+  margin-top: 1.25rem;
+}
+
+.aulas-topics__header {
+  margin-bottom: 1rem;
+}
+
+.aulas-topics__title {
+  margin-bottom: 0.45rem;
+  font-size: 1.2rem;
+}
+
+.aulas-topics__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.aulas-topics__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(84, 65, 49, 0.12);
+  border-radius: 999px;
+  background: #fffdf8;
+  color: #5a5048;
+  font-weight: 600;
+}
+
+.aulas-topics__chip:hover,
+.aulas-topics__chip:focus {
+  color: #2e3140;
+  border-color: rgba(155, 122, 51, 0.32);
+  background: #fff9ef;
+}
+
+.aulas-topics__chip.is-active {
+  color: #2e3140;
+  border-color: rgba(155, 122, 51, 0.38);
+  background: linear-gradient(135deg, #f8edd7, #f4e5c4);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.aulas-topics__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(155, 122, 51, 0.12);
+  color: #82672c;
+  font-size: 0.82rem;
+}
+
+.aulas-catalog {
+  padding: 1.5rem 0 0;
+}
+
+.aulas-accordion {
+  display: grid;
+  gap: 1rem;
+}
+
+.aulas-accordion__item {
+  overflow: hidden;
+}
+
+.aulas-accordion__button {
+  gap: 1rem;
+  padding: 1.2rem 1.35rem;
+  background: transparent;
+  box-shadow: none;
+}
+
+.aulas-accordion__button:not(.collapsed) {
+  background: linear-gradient(180deg, rgba(250, 243, 228, 0.94), rgba(255, 252, 246, 0.96));
+  color: inherit;
+  box-shadow: none;
+}
+
+.aulas-accordion__button:focus {
+  box-shadow: var(--brand-focus);
+}
+
+.aulas-accordion__button::after {
+  width: 1rem;
+  height: 1rem;
+  background-size: 1rem;
+}
+
+.aulas-accordion__button-copy {
+  display: grid;
+  gap: 0.15rem;
+  text-align: left;
+}
+
+.aulas-accordion__eyebrow {
+  margin-bottom: 0;
+}
+
+.aulas-accordion__title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.aulas-accordion__badge {
+  margin-left: auto;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(155, 122, 51, 0.11);
+  color: #82672c;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.aulas-accordion__body {
+  padding: 0 1.35rem 1.25rem;
+}
+
+.aulas-lesson-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.aulas-lesson-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  padding: 1rem 1.05rem;
+  border: 1px solid rgba(84, 65, 49, 0.08);
+  border-radius: 1rem;
+  background: #fffdfa;
+}
+
+.aulas-lesson-row__main {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.aulas-lesson-row__meta {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.aulas-lesson-row__title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.aulas-lesson-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.aulas-empty__panel {
+  text-align: center;
+}
+
+.aulas-detail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.2rem;
+  color: #5a5048;
+  font-weight: 600;
+}
+
+.aulas-detail__back:hover,
+.aulas-detail__back:focus {
+  color: #2e3140;
+}
+
+.aulas-detail {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.aulas-detail__player-card {
+  overflow: hidden;
+}
+
+.aulas-detail__player {
+  background: #000;
+}
+
+.aulas-detail__body,
+.aulas-detail__panel {
+  padding: 1.3rem;
+}
+
+.aulas-detail__title {
+  margin-bottom: 0.85rem;
+}
+
+.aulas-detail__meta {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.aulas-detail__panel-title {
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+
+.aulas-detail__list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.aulas-detail__list-link {
+  display: grid;
+  gap: 0.18rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(84, 65, 49, 0.08);
+  border-radius: 1rem;
+  background: #fffdfa;
+  color: #5a5048;
+}
+
+.aulas-detail__list-link:hover,
+.aulas-detail__list-link:focus {
+  color: #2e3140;
+  border-color: rgba(155, 122, 51, 0.22);
+  background: #fff8ee;
+}
+
+.admin-shell__header,
+.admin-shell__panel,
+.admin-shell__table,
+.admin-form,
+.admin-delete {
+  border: 1px solid rgba(242, 183, 5, 0.18);
+  border-radius: var(--brand-radius);
+  background:
+    linear-gradient(145deg, rgba(43, 27, 24, 0.96), rgba(64, 38, 31, 0.92)),
+    radial-gradient(circle at top right, rgba(242, 183, 5, 0.12), transparent 34%);
+  box-shadow: 0 22px 48px rgba(8, 5, 5, 0.28);
+}
+
+.admin-shell__header,
+.admin-shell__panel,
+.admin-form,
+.admin-delete {
+  padding: 1.5rem;
+}
+
+.admin-shell__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+  color: var(--brand-gold-soft);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.admin-shell__title {
+  color: #fff8ea;
+}
+
+.admin-shell {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.admin-shell__header {
+  color: #fff2df;
+}
+
+.admin-shell__subtitle {
+  margin: 0;
+  color: rgba(255, 243, 224, 0.8);
+  line-height: 1.8;
+}
+
+.admin-status {
+  border-color: rgba(0, 152, 70, 0.32);
+  background: rgba(0, 152, 70, 0.12);
+  color: #effff4;
+}
+
+.admin-shell__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.admin-shell__table {
+  overflow: hidden;
+}
+
+.admin-table {
+  margin: 0;
+  color: #fff2df;
+}
+
+.admin-table > :not(caption) > * > * {
+  padding: 1rem;
+  background: transparent;
+  border-color: rgba(255, 248, 234, 0.08);
+}
+
+.admin-table thead th {
+  color: var(--brand-gold-soft);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-form .form-label,
+.admin-delete dt {
+  color: #fff8ea;
+}
+
+.admin-form .form-control,
+.admin-form .form-select {
+  background: rgba(255, 248, 234, 0.98);
+}
+
+.admin-hint {
+  color: rgba(255, 243, 224, 0.8);
+  line-height: 1.8;
+}
+
+.admin-form .validation-summary-errors,
+.admin-form .text-danger,
+.admin-delete .text-danger {
+  color: #ffcab8 !important;
+}
+
+.admin-delete dl {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.admin-delete dd {
+  margin: 0;
+  color: rgba(255, 243, 224, 0.84);
+}
+
+@media (min-width: 768px) {
+  .aulas-lesson-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .aulas-lesson-row__actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (min-width: 992px) {
+  .aulas-detail {
+    grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.85fr);
+    align-items: start;
+  }
+}

@@ -16,22 +16,41 @@ public static class ApplicationDbInitializer
         ["GoogleMapsUrl"] = "https://www.google.com/maps/search/?api=1&query=Rua%20Assis%2C%2096%20-%20Baeta%20Neves%20-%20Sao%20Bernardo%20do%20Campo%2FSP"
     };
 
-    private static readonly (string Name, int DisplayOrder)[] InitialCategories =
+    private static readonly VideoCategorySeed[] InitialCategories =
     [
-        ("Aulas 2020", 1),
-        ("Aulas 2021", 2)
+        new("Giras de Umbanda", 1),
+        new("Mediunidade", 2),
+        new("Linhas de trabalho", 3),
+        new("Outros assuntos", 4)
     ];
 
-    private static readonly (string Title, string YouTubeVideoId, string CategoryName, int DisplayOrder)[] InitialLessonVideos =
+    private static readonly LessonVideoSeed[] InitialLessonVideos =
     [
-        ("Historia da Umbanda", "sRPx6VTLMmw", "Aulas 2020", 1),
-        ("Boiadeiros", "rfKETMoerGw", "Aulas 2020", 2),
-        ("Marinheiros", "A1kBBB4UuoY", "Aulas 2020", 3),
-        ("Baianos", "X2YD18cUrg0", "Aulas 2020", 4),
-        ("Coroa Mediunica", "QZiU7TSoeJk", "Aulas 2021", 1),
-        ("Educacao Mediunica", "EBsQ0Tuw4Rg", "Aulas 2021", 2),
-        ("Desenvolvimento Mediunico", "lysOndPYrMo", "Aulas 2021", 3),
-        ("Desenvolvimento Mediunico II", "EBsQ0Tuw4Rg", "Aulas 2021", 4)
+        new("Hierarquias na Umbanda", "DNqTjhZ88Es", "Giras de Umbanda", 1),
+        new("Ritualística de Umbanda", "h07Od3Kit_M", "Giras de Umbanda", 2),
+        new("Educação Mediúnica", "smMoJZV2n2I", "Mediunidade", 1),
+        new("Desenvolvimento Mediúnico I", "lysOndPYrMo", "Mediunidade", 2),
+        new("Desenvolvimento Mediúnico II", "EBsQ0Tuw4Rg", "Mediunidade", 3),
+        new("Transporte e desobsessão", "mXkzeJxwsws", "Mediunidade", 4),
+        new("Manifestações mediúnicas", "WjEKgI4o6QQ", "Mediunidade", 5),
+        new("Linha de trabalho: Boiadeiros", "rfKETMoerGw", "Linhas de trabalho", 1),
+        new("Linha de trabalho: Marinheiros", "A1kBBB4UuoY", "Linhas de trabalho", 2),
+        new("Linha de trabalho: Baianos", "X2YD18cUrg0", "Linhas de trabalho", 3),
+        new("Linha de trabalho: Pretos Velhos", "OCtN77xsGD0", "Linhas de trabalho", 4),
+        new("Linha de trabalho: Caboclos", "fFpyvhSfjZY", "Linhas de trabalho", 5),
+        new("Linha de trabalho: Erês", "v9JYCmTNPfE", "Linhas de trabalho", 6),
+        new("Linha de trabalho: Ciganos", "wQZXNQICfcc", "Linhas de trabalho", 7),
+        new("Novas linhas de trabalho", "HkM9PhZnROk", "Linhas de trabalho", 8),
+        new("Linhas de trabalho: Exus e Pombagiras", "6PhshyVAdIM", "Linhas de trabalho", 9),
+        new("Linhas de trabalho: Exus Mirins e Pombagiras Mirins", "z0knNs0sR0w", "Linhas de trabalho", 10),
+        new("História da Umbanda", "sRPx6VTLMmw", "Outros assuntos", 1),
+        new("Coroa Mediúnica", "QZiU7TSoeJk", "Outros assuntos", 2)
+    ];
+
+    private static readonly string[] LegacyCategoryNames =
+    [
+        "Aulas 2020",
+        "Aulas 2021"
     ];
 
     public static async Task InitializeAsync(IServiceProvider services, IConfiguration configuration)
@@ -89,55 +108,95 @@ public static class ApplicationDbInitializer
 
     private static async Task SeedVideoCatalogAsync(ApplicationDbContext context)
     {
-        var existingCategoryNames = new HashSet<string>(
-            await context.VideoCategories
-                .Select(category => category.Name)
-                .ToListAsync(),
-            StringComparer.OrdinalIgnoreCase);
-
-        foreach (var (name, displayOrder) in InitialCategories)
-        {
-            if (existingCategoryNames.Contains(name))
-            {
-                continue;
-            }
-
-            context.VideoCategories.Add(new VideoCategory
-            {
-                Name = name,
-                DisplayOrder = displayOrder
-            });
-        }
-
-        await context.SaveChangesAsync();
-
         var categories = await context.VideoCategories.ToListAsync();
-        var categoriesByName = categories.ToDictionary(category => category.Name, StringComparer.OrdinalIgnoreCase);
 
-        var existingVideos = (await context.LessonVideos
-                .Select(video => new { video.Title, video.VideoCategoryId })
-                .ToListAsync())
-            .Select(video => (video.Title, video.VideoCategoryId))
-            .ToHashSet();
-
-        foreach (var (title, youTubeVideoId, categoryName, displayOrder) in InitialLessonVideos)
+        foreach (var seed in InitialCategories)
         {
-            var category = categoriesByName[categoryName];
-            if (existingVideos.Contains((title, category.Id)))
+            var category = categories.FirstOrDefault(item =>
+                string.Equals(item.Name, seed.Name, StringComparison.OrdinalIgnoreCase));
+
+            if (category is null)
             {
+                category = new VideoCategory
+                {
+                    Name = seed.Name,
+                    DisplayOrder = seed.DisplayOrder
+                };
+
+                context.VideoCategories.Add(category);
+                categories.Add(category);
                 continue;
             }
 
-            context.LessonVideos.Add(new LessonVideo
+            if (category.DisplayOrder != seed.DisplayOrder)
             {
-                Title = title,
-                YouTubeVideoId = youTubeVideoId,
-                VideoCategoryId = category.Id,
-                DisplayOrder = displayOrder
-            });
+                category.DisplayOrder = seed.DisplayOrder;
+            }
         }
 
         await context.SaveChangesAsync();
+
+        var categoriesByName = categories.ToDictionary(category => category.Name, StringComparer.OrdinalIgnoreCase);
+        var videos = await context.LessonVideos.ToListAsync();
+
+        foreach (var seed in InitialLessonVideos)
+        {
+            var category = categoriesByName[seed.CategoryName];
+            var matchingVideos = videos
+                .Where(video => string.Equals(video.YouTubeVideoId, seed.YouTubeVideoId, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (matchingVideos.Count == 0)
+            {
+                var newVideo = new LessonVideo
+                {
+                    Title = seed.Title,
+                    YouTubeVideoId = seed.YouTubeVideoId,
+                    VideoCategoryId = category.Id,
+                    DisplayOrder = seed.DisplayOrder
+                };
+
+                context.LessonVideos.Add(newVideo);
+                videos.Add(newVideo);
+                continue;
+            }
+
+            var primaryVideo = SelectPrimaryVideo(matchingVideos, seed.Title);
+            primaryVideo.Title = seed.Title;
+            primaryVideo.YouTubeVideoId = seed.YouTubeVideoId;
+            primaryVideo.VideoCategoryId = category.Id;
+            primaryVideo.DisplayOrder = seed.DisplayOrder;
+
+            foreach (var duplicateVideo in matchingVideos.Where(video => video.Id != primaryVideo.Id))
+            {
+                context.LessonVideos.Remove(duplicateVideo);
+                videos.Remove(duplicateVideo);
+            }
+        }
+
+        await context.SaveChangesAsync();
+
+        var removableLegacyCategories = await context.VideoCategories
+            .Include(category => category.LessonVideos)
+            .Where(category =>
+                LegacyCategoryNames.Contains(category.Name) &&
+                category.LessonVideos.Count == 0)
+            .ToListAsync();
+
+        if (removableLegacyCategories.Count > 0)
+        {
+            context.VideoCategories.RemoveRange(removableLegacyCategories);
+            await context.SaveChangesAsync();
+        }
+    }
+
+    private static LessonVideo SelectPrimaryVideo(IReadOnlyList<LessonVideo> videos, string expectedTitle)
+    {
+        return videos
+            .OrderByDescending(video => string.Equals(video.Title, expectedTitle, StringComparison.OrdinalIgnoreCase))
+            .ThenBy(video => video.DisplayOrder)
+            .ThenBy(video => video.CreatedAt)
+            .First();
     }
 
     private static async Task SeedAdminAsync(IServiceProvider services, IConfiguration configuration)
@@ -222,4 +281,8 @@ public static class ApplicationDbInitializer
         var errors = string.Join("; ", result.Errors.Select(error => error.Description));
         throw new InvalidOperationException($"Nao foi possivel {operation}: {errors}");
     }
+
+    private sealed record VideoCategorySeed(string Name, int DisplayOrder);
+
+    private sealed record LessonVideoSeed(string Title, string YouTubeVideoId, string CategoryName, int DisplayOrder);
 }
