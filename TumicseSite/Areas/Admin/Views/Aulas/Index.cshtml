@@ -1,0 +1,72 @@
+@model AdminAulasIndexViewModel
+@{
+    ViewData["Title"] = "Admin - Aulas";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/aulas.css" asp-append-version="true" />
+}
+
+<section class="admin-shell">
+    <div class="admin-shell__header">
+        <span class="admin-shell__eyebrow">Administracao</span>
+        <h1 class="admin-shell__title">Gerenciar aulas</h1>
+        <p class="admin-shell__subtitle">Cadastre, edite e organize os videos internos exibidos na area protegida dos mediuns.</p>
+    </div>
+
+    @if (TempData["StatusMessage"] is string statusMessage)
+    {
+        <div class="alert admin-status mb-0" role="status">@statusMessage</div>
+    }
+
+    <div class="admin-shell__actions">
+        <a class="btn btn-brand-primary" asp-action="Create">Nova aula</a>
+        <a class="btn btn-brand-secondary" asp-area="Admin" asp-controller="CategoriasAulas" asp-action="Index">Categorias</a>
+        <a class="btn btn-brand-outline" asp-area="" asp-controller="Aulas" asp-action="Index">Ver area publica</a>
+    </div>
+
+    <div class="admin-shell__table">
+        @if (Model.Lessons.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Titulo</th>
+                            <th>Categoria</th>
+                            <th>YouTubeVideoId</th>
+                            <th>Ordem</th>
+                            <th>Criada em</th>
+                            <th class="text-end">Acoes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var lesson in Model.Lessons)
+                        {
+                            <tr>
+                                <td>@lesson.Title</td>
+                                <td>@lesson.CategoryName</td>
+                                <td><code>@lesson.YouTubeVideoId</code></td>
+                                <td>@lesson.DisplayOrder</td>
+                                <td>@lesson.CreatedAtLabel</td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@lesson.Id">Editar</a>
+                                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@lesson.Id">Excluir</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="admin-shell__panel">
+                <h2 class="admin-shell__title h4">Nenhuma aula cadastrada.</h2>
+                <p class="admin-shell__subtitle">Use o botao acima para criar a primeira aula desta area.</p>
+            </div>
+        }
+    </div>
+</section>

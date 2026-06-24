@@ -1,0 +1,40 @@
+@model AdminVideoCategoryDeleteViewModel
+@{
+    ViewData["Title"] = "Admin - Excluir Categoria";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/aulas.css" asp-append-version="true" />
+}
+
+<section class="admin-shell">
+    <div class="admin-shell__header">
+        <span class="admin-shell__eyebrow">Administracao</span>
+        <h1 class="admin-shell__title">Excluir categoria</h1>
+        <p class="admin-shell__subtitle">A exclusao so e permitida quando a categoria nao possui aulas vinculadas.</p>
+    </div>
+
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="admin-delete">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <dl>
+            <div>
+                <dt>Categoria</dt>
+                <dd>@Model.Name</dd>
+            </div>
+            <div>
+                <dt>Ordem de exibicao</dt>
+                <dd>@Model.DisplayOrder</dd>
+            </div>
+            <div>
+                <dt>Aulas vinculadas</dt>
+                <dd>@Model.LessonCount</dd>
+            </div>
+        </dl>
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <button type="submit" class="btn btn-danger">Excluir categoria</button>
+            <a class="btn btn-brand-secondary" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</section>

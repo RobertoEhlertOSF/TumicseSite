@@ -1,0 +1,70 @@
+@model AulasDetailsViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    var selectedCategory = ViewData["SelectedCategory"]?.ToString();
+    var backFragment = string.IsNullOrWhiteSpace(selectedCategory) ? null : $"categoria-{selectedCategory}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/aulas.css" asp-append-version="true" />
+}
+
+<section class="aulas-page">
+    <div class="container">
+        <a class="aulas-detail__back"
+           asp-action="Index"
+           asp-route-categoria="@selectedCategory"
+           asp-fragment="@backFragment">
+            &larr; Voltar aos topicos
+        </a>
+
+        <div class="aulas-detail">
+            <article class="aulas-detail__player-card">
+                <div class="ratio ratio-16x9 aulas-detail__player">
+                    <iframe src="@Model.EmbedUrl"
+                            title="Video da aula @Model.Title"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <div class="aulas-detail__body">
+                    <span class="aulas-detail__eyebrow">@Model.CategoryName</span>
+                    <h1 class="aulas-detail__title">@Model.Title</h1>
+                    <p class="aulas-detail__copy">
+                        Conteudo interno de estudo do TUMICSE, organizado para consulta tranquila e acompanhamento formativo dos mediuns.
+                    </p>
+                    <div class="aulas-detail__meta">
+                        <span>Categoria: @Model.CategoryName</span>
+                        <span>Publicada em: @Model.PublishedAtLabel</span>
+                    </div>
+                </div>
+            </article>
+
+            <aside class="aulas-detail__side">
+                <div class="aulas-detail__panel">
+                    <h2 class="aulas-detail__panel-title">Mais aulas deste topico</h2>
+                    @if (Model.RelatedLessons.Count > 0)
+                    {
+                        <div class="aulas-detail__list">
+                            @foreach (var lesson in Model.RelatedLessons)
+                            {
+                                <a class="aulas-detail__list-link"
+                                   asp-action="Details"
+                                   asp-route-id="@lesson.Id"
+                                   asp-route-categoria="@Model.CategorySlug">
+                                    <strong>@lesson.Title</strong>
+                                    <span>@lesson.PublishedAtLabel</span>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="aulas-detail__empty">Esta categoria ainda nao possui outras aulas relacionadas.</p>
+                    }
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
