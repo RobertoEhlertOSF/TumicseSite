@@ -1,0 +1,69 @@
+@model AgendaEventDetailsViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/agenda.css" asp-append-version="true" />
+}
+
+<section class="agenda-page">
+    <div class="agenda-hero">
+        <div class="container">
+            <div class="agenda-hero__panel">
+                <span class="agenda-hero__eyebrow">Evento publico</span>
+                <div class="agenda-hero__content">
+                    <div>
+                        <div class="agenda-card__badges mb-3">
+                            <span class="agenda-badge agenda-badge--type">@Model.EventTypeLabel</span>
+                            <span class="agenda-badge agenda-badge--public">Publico</span>
+                        </div>
+                        <h1 class="agenda-hero__title">@Model.Title</h1>
+                        @if (!string.IsNullOrWhiteSpace(Model.Description))
+                        {
+                            <p class="agenda-hero__subtitle">@Model.Description</p>
+                        }
+                    </div>
+                    <div class="agenda-hero__actions">
+                        <a class="btn btn-brand-secondary" asp-action="Index">Voltar ao calendario</a>
+                        <a class="btn btn-brand-primary" asp-action="ExportIcs">Baixar calendario .ics</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <article class="agenda-event-detail">
+            <div class="agenda-event-detail__grid">
+                <div>
+                    <span class="agenda-event-detail__label">Data</span>
+                    <p>@Model.DateLabel</p>
+                </div>
+                <div>
+                    <span class="agenda-event-detail__label">Horario</span>
+                    <p>@Model.TimeLabel</p>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Location))
+                {
+                    <div>
+                        <span class="agenda-event-detail__label">Local</span>
+                        <p>@Model.Location</p>
+                    </div>
+                }
+                <div>
+                    <span class="agenda-event-detail__label">Tipo</span>
+                    <p>@Model.EventTypeLabel</p>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="agenda-event-detail__description">
+                    <span class="agenda-event-detail__label">Descricao</span>
+                    <p>@Model.Description</p>
+                </div>
+            }
+        </article>
+    </div>
+</section>

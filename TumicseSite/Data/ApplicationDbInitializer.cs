@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TumicseSite.Models;
+using TumicseSite.Utilities;
 
 namespace TumicseSite.Data;
 
@@ -53,6 +54,149 @@ public static class ApplicationDbInitializer
         "Aulas 2021"
     ];
 
+    private static readonly EventSeed[] InitialEvents =
+    [
+        CreateBirthday("Aniversario Fabio", 2026, 1, 4),
+        CreateBirthday("Aniversario Bruna", 2026, 1, 8),
+        CreateBirthday("Aniversario Victor", 2026, 1, 11),
+        CreateSacredDate("Dia Consagrado a Pai Oxossi", 2026, 1, 20),
+        CreateBirthday("Aniversario Rafael", 2026, 1, 30),
+
+        CreatePrivateMaintenance("Retorno aos trabalhos", 2026, 2, 1),
+        CreatePublicWork("Trabalho de Cura", 2026, 2, 7),
+        CreatePrivateWork("Oblacao Pai Oxossi", 2026, 2, 8),
+        CreatePrivateMaintenance("Folga", 2026, 2, 15),
+        CreateBirthday("Aniversario Paula", 2026, 2, 17),
+        CreatePrivateMaintenance("Folga", 2026, 2, 22),
+        CreateBirthday("Aniversario Wesley", 2026, 2, 27),
+
+        CreatePublicGira("Gira Aberta Marinheiros", 2026, 3, 1),
+        CreateBirthday("Aniversario Nina", 2026, 3, 2),
+        CreatePublicWork("Trabalho de Cura", 2026, 3, 7),
+        CreatePrivateWork("Amaci Pai Ze", 2026, 3, 8),
+        CreatePrivateWork("Guia do Terreiro", 2026, 3, 8),
+        CreateSacredDate("Dia Consagrado as Pombagiras", 2026, 3, 8),
+        CreateBirthday("Aniversario Elisangela", 2026, 3, 10),
+        CreateDevelopment("Desenvolvimento", 2026, 3, 15),
+        CreateDevelopment("Desenvolvimento", 2026, 3, 22),
+        CreatePublicGira("Gira Aberta Ze Pilintra", 2026, 3, 29),
+
+        CreatePrivateMaintenance("Folga", 2026, 4, 5),
+        CreateBirthday("Aniversario Noeli", 2026, 4, 10),
+        CreatePublicWork("Trabalho de Cura", 2026, 4, 11),
+        CreateStudy("Leitura de Ancestral", 2026, 4, 12),
+        CreateSacredDate("Dia Consagrado aos Caboclos", 2026, 4, 19),
+        CreateDevelopment("Desenvolvimento", 2026, 4, 19),
+        CreateSacredDate("Dia Consagrado a Pai Ogum", 2026, 4, 20),
+        CreatePrivateWork("Oblacao Pai Ogum", 2026, 4, 26),
+        CreatePublicGira("Gira Aberta Boiadeiros", 2026, 4, 26),
+        CreateSpecialDate("Dia dos Sacerdotes Umbandistas", 2026, 4, 27),
+
+        CreatePublicWork("Trabalho de Cura", 2026, 5, 2),
+        CreateDevelopment("Desenvolvimento", 2026, 5, 3),
+        CreatePrivateMaintenance("Folga", 2026, 5, 10),
+        CreateSacredDate("Dia Consagrado aos Pretos-Velhos", 2026, 5, 13),
+        CreateBirthday("Aniversario Mae Elvira", 2026, 5, 13),
+        CreateBirthday("Aniversario Marcia T.", 2026, 5, 14),
+        CreateBirthday("Aniversario Kathy", 2026, 5, 20),
+        CreateSacredDate("Dia Consagrado a Mae Egunita e Ciganos", 2026, 5, 24),
+        CreatePrivateWork("Oblacao Mae Egunita e Mae Oba", 2026, 5, 24),
+        CreateSpecialDate("Dia dos Cambones", 2026, 5, 27),
+        CreateBirthday("Aniversario Jussara", 2026, 5, 29),
+        CreateDevelopment("Desenvolvimento", 2026, 5, 31),
+
+        CreateBirthday("Aniversario Cassy", 2026, 6, 2),
+        CreatePublicGira("Gira Aberta Pretos Velhos", 2026, 6, 7),
+        CreatePublicWork("Trabalho de Cura", 2026, 6, 13),
+        CreateSacredDate("Dia Consagrado aos Exus", 2026, 6, 13),
+        CreatePublicWork("Mesa de Jurema", 2026, 6, 14),
+        CreateBirthday("Aniversario Arthur", 2026, 6, 15),
+        CreateBirthday("Aniversario Marco", 2026, 6, 22),
+        CreateSacredDate("Dia Consagrado a Pai Xango", 2026, 6, 24),
+        CreatePrivateWork("Oblacao Pai Xango", 2026, 6, 28),
+        CreatePublicGira("Gira Aberta Baianos", 2026, 6, 28),
+
+        CreateSacredDate("Dia Consagrado aos Boiadeiros", 2026, 7, 2),
+        CreatePublicWork("Trabalho de Cura", 2026, 7, 4),
+        CreateBirthday("Aniversario Renato", 2026, 7, 4),
+        CreateDevelopment("Desenvolvimento", 2026, 7, 5),
+        CreateSpecialDate("Dia dos Magos do Fogo", 2026, 7, 7),
+        CreateBirthday("Aniversario Caio", 2026, 7, 10),
+        CreatePrivateMaintenance("Folga", 2026, 7, 12),
+        CreateFeast("Festa de Esquerda", 2026, 7, 19),
+        CreateSacredDate("Dia Consagrado e Oblacao a Mae Nana", 2026, 7, 26),
+        CreatePublicGira("Gira Aberta Caboclos", 2026, 7, 26),
+        CreateBirthday("Aniversario Otilia", 2026, 7, 28),
+
+        CreatePublicWork("Trabalho de Cura", 2026, 8, 1),
+        CreateStudy("Leitura de Ancestral", 2026, 8, 2),
+        CreateBirthday("Aniversario Joana", 2026, 8, 5),
+        CreatePrivateMaintenance("Folga", 2026, 8, 9),
+        CreateBirthday("Aniversario Josy", 2026, 8, 10),
+        CreateSacredDate("Dia Consagrado a Mae Oya-Loguna", 2026, 8, 11),
+        CreateBirthday("Aniversario Beatriz", 2026, 8, 12),
+        CreateSacredDate("Dia Consagrado aos Baianos", 2026, 8, 15),
+        CreateSacredDate("Dia Consagrado a Pai Obaluae", 2026, 8, 16),
+        CreatePrivateWork("Oblacao Obaluae e Loguna", 2026, 8, 16),
+        CreateBirthday("Aniversario Juliana M.", 2026, 8, 18),
+        CreateBirthday("Aniversario Juliana F.", 2026, 8, 19),
+        CreateDevelopment("Desenvolvimento", 2026, 8, 23),
+        CreateSacredDate("Dia Consagrado a Pai Oxumare", 2026, 8, 24),
+        CreateBirthday("Aniversario Alexandre", 2026, 8, 24),
+        CreatePrivateWork("Oblacao Oxumare", 2026, 8, 30),
+        CreatePublicGira("Gira Aberta Esquerda", 2026, 8, 30),
+
+        CreateBirthday("Aniversario Claudinha", 2026, 9, 1),
+        CreatePrivateMaintenance("Folga", 2026, 9, 6),
+        CreateBirthday("Aniversario Nani", 2026, 9, 10),
+        CreatePublicWork("Trabalho de Cura", 2026, 9, 12),
+        CreatePublicWork("Mesa de Jurema", 2026, 9, 13),
+        CreateBirthday("Aniversario Will", 2026, 9, 14),
+        CreateSpecialDate("Dia dos Ogas", 2026, 9, 15),
+        CreateDevelopment("Desenvolvimento", 2026, 9, 20),
+        CreateBirthday("Aniversario Alvaro", 2026, 9, 20),
+        CreateSacredDate("Dia Consagrado aos Eres", 2026, 9, 27),
+        CreatePublicGira("Gira Aberta Ere", 2026, 9, 27),
+
+        CreatePublicWork("Trabalho de Cura", 2026, 10, 3),
+        CreatePublicWork("Atendimento aos PETS", 2026, 10, 3, 14, 0, 17, 0),
+        CreatePrivateWork("Oblacao Oxum", 2026, 10, 4),
+        CreateSpecialDate("Dia de Sao Francisco de Assis", 2026, 10, 4),
+        CreateSacredDate("Dia Consagrado aos Cangaceiros", 2026, 10, 8),
+        CreateSacredDate("Dia Consagrado a Mae Oxum", 2026, 10, 12),
+        CreateBirthday("Aniversario Amalia", 2026, 10, 15),
+        CreatePrivateWork("Oferenda Ancestral + Esquerda", 2026, 10, 18),
+        CreateBirthday("Aniversario Sergio", 2026, 10, 19),
+        CreatePublicGira("Gira Aberta Ciganos", 2026, 10, 25),
+        CreateSacredDate("Dia Consagrado aos Malandros", 2026, 10, 28),
+
+        CreatePrivateWork("Oblacao Pai Omulu (S)", 2026, 11, 1),
+        CreateSacredDate("Dia Consagrado a Pai Omulu", 2026, 11, 2),
+        CreatePublicWork("Trabalho de Cura", 2026, 11, 7),
+        CreateBirthday("Aniversario Be e Leo", 2026, 11, 12),
+        CreateSpecialDate("Dia da Umbanda", 2026, 11, 15),
+        CreateFeast("Festa de Esquerda", 2026, 11, 15),
+        CreateBirthday("Aniversario Lille", 2026, 11, 15),
+        CreatePrivateMaintenance("Folga", 2026, 11, 22),
+        CreateBirthday("Aniversario Marcia V.", 2026, 11, 26),
+        CreatePrivateWork("Oblacao Mae Iansa", 2026, 11, 29),
+        CreatePublicGira("Gira Aberta Pretos Velhos", 2026, 11, 29),
+
+        CreateSacredDate("Dia Consagrado a Mae Iansa", 2026, 12, 4),
+        CreatePublicWork("Trabalho de Cura", 2026, 12, 5),
+        CreatePrivateWork("Oblacao Mae Iemanja", 2026, 12, 6),
+        CreateBirthday("Aniversario Roberto", 2026, 12, 6),
+        CreateSacredDate("Dia Consagrado a Mae Iemanja", 2026, 12, 8),
+        CreateBirthday("Aniversario Caue", 2026, 12, 8),
+        CreateSacredDate("Dia Consagrado aos Marinheiros", 2026, 12, 13),
+        CreatePrivateWork("Oblacao Pai Oxala", 2026, 12, 13),
+        CreateBirthday("Aniversario Claudia", 2026, 12, 15),
+        CreatePrivateMaintenance("Recesso", 2026, 12, 20),
+        CreateBirthday("Aniversario Bruno", 2026, 12, 20),
+        CreateSacredDate("Dia Consagrado a Pai Oxala", 2026, 12, 25),
+        CreateBirthday("Aniversario Miriam e Renata", 2026, 12, 28)
+    ];
+
     public static async Task InitializeAsync(IServiceProvider services, IConfiguration configuration)
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
@@ -61,6 +205,7 @@ public static class ApplicationDbInitializer
         await SeedRolesAsync(services);
         await SeedSiteSettingsAsync(context);
         await SeedVideoCatalogAsync(context);
+        await SeedEventsAsync(context);
         await SeedAdminAsync(services, configuration);
     }
 
@@ -190,6 +335,53 @@ public static class ApplicationDbInitializer
         }
     }
 
+    private static async Task SeedEventsAsync(ApplicationDbContext context)
+    {
+        var existingEvents = await context.Events
+            .AsNoTracking()
+            .Select(item => new
+            {
+                item.Id,
+                item.Title,
+                item.EventType,
+                item.StartDate
+            })
+            .ToListAsync();
+
+        foreach (var seed in InitialEvents)
+        {
+            var seedStartDate = EventDateTimeHelper.ToStoredStartDate(seed.StartDateLocal, seed.IsAllDay);
+            var alreadyExists = existingEvents.Any(item => item.Id == seed.Id) ||
+                                existingEvents.Any(item =>
+                                    string.Equals(item.Title, seed.Title, StringComparison.OrdinalIgnoreCase) &&
+                                    item.EventType == seed.EventType &&
+                                    item.StartDate == seedStartDate);
+
+            if (alreadyExists)
+            {
+                continue;
+            }
+
+            context.Events.Add(new Event
+            {
+                Id = seed.Id,
+                Title = seed.Title,
+                Description = seed.Description,
+                StartDate = seedStartDate,
+                EndDate = EventDateTimeHelper.ToStoredEndDate(seed.EndDateLocal, seed.StartDateLocal, seed.IsAllDay),
+                IsAllDay = seed.IsAllDay,
+                Location = seed.Location,
+                EventType = seed.EventType,
+                IsPublic = seed.IsPublic,
+                IsActive = seed.IsActive,
+                IsCancelled = seed.IsCancelled,
+                InternalNotes = seed.InternalNotes
+            });
+        }
+
+        await context.SaveChangesAsync();
+    }
+
     private static LessonVideo SelectPrimaryVideo(IReadOnlyList<LessonVideo> videos, string expectedTitle)
     {
         return videos
@@ -285,4 +477,141 @@ public static class ApplicationDbInitializer
     private sealed record VideoCategorySeed(string Name, int DisplayOrder);
 
     private sealed record LessonVideoSeed(string Title, string YouTubeVideoId, string CategoryName, int DisplayOrder);
+
+    private static EventSeed CreateBirthday(string title, int year, int month, int day) =>
+        new(
+            Guid.NewGuid(),
+            title,
+            "Data de aniversario registrada no calendario institucional da casa.",
+            CalendarEventType.Birthday,
+            new DateTime(year, month, day),
+            null,
+            true,
+            "Templo TUMICSE",
+            true,
+            true,
+            false,
+            null);
+
+    private static EventSeed CreateSacredDate(string title, int year, int month, int day) =>
+        new(
+            Guid.NewGuid(),
+            title,
+            "Data consagrada registrada no calendario institucional do TUMICSE.",
+            CalendarEventType.Other,
+            new DateTime(year, month, day),
+            null,
+            true,
+            "Templo TUMICSE",
+            true,
+            true,
+            false,
+            null);
+
+    private static EventSeed CreateSpecialDate(string title, int year, int month, int day) =>
+        new(
+            Guid.NewGuid(),
+            title,
+            "Data especial registrada no calendario institucional do TUMICSE.",
+            CalendarEventType.Other,
+            new DateTime(year, month, day),
+            null,
+            true,
+            "Templo TUMICSE",
+            true,
+            true,
+            false,
+            null);
+
+    private static EventSeed CreatePublicGira(string title, int year, int month, int day) =>
+        CreateTimedEvent(title, CalendarEventType.Gira, year, month, day, 8, 0, 12, 0, true);
+
+    private static EventSeed CreatePublicWork(
+        string title,
+        int year,
+        int month,
+        int day,
+        int startHour = 8,
+        int startMinute = 0,
+        int endHour = 12,
+        int endMinute = 0) =>
+        CreateTimedEvent(title, CalendarEventType.PublicWork, year, month, day, startHour, startMinute, endHour, endMinute, true);
+
+    private static EventSeed CreatePrivateWork(string title, int year, int month, int day) =>
+        new(
+            Guid.NewGuid(),
+            title,
+            "Atividade interna registrada no calendario institucional do TUMICSE.",
+            CalendarEventType.PrivateWork,
+            new DateTime(year, month, day),
+            null,
+            true,
+            "Templo TUMICSE",
+            false,
+            true,
+            false,
+            null);
+
+    private static EventSeed CreateDevelopment(string title, int year, int month, int day) =>
+        CreateTimedEvent(title, CalendarEventType.Development, year, month, day, 8, 0, 12, 0, false);
+
+    private static EventSeed CreateStudy(string title, int year, int month, int day) =>
+        CreateTimedEvent(title, CalendarEventType.Study, year, month, day, 8, 0, 12, 0, true);
+
+    private static EventSeed CreateFeast(string title, int year, int month, int day) =>
+        CreateTimedEvent(title, CalendarEventType.Feast, year, month, day, 8, 0, 12, 0, true);
+
+    private static EventSeed CreatePrivateMaintenance(string title, int year, int month, int day) =>
+        new(
+            Guid.NewGuid(),
+            title,
+            "Marcacao interna administrativa do calendario do TUMICSE.",
+            CalendarEventType.Maintenance,
+            new DateTime(year, month, day),
+            null,
+            true,
+            "Templo TUMICSE",
+            false,
+            true,
+            false,
+            null);
+
+    private static EventSeed CreateTimedEvent(
+        string title,
+        CalendarEventType eventType,
+        int year,
+        int month,
+        int day,
+        int startHour,
+        int startMinute,
+        int endHour,
+        int endMinute,
+        bool isPublic) =>
+        new(
+            Guid.NewGuid(),
+            title,
+            "Evento mapeado a partir do calendario institucional de 2026 do TUMICSE.",
+            eventType,
+            new DateTime(year, month, day, startHour, startMinute, 0),
+            new DateTime(year, month, day, endHour, endMinute, 0),
+            false,
+            "Templo TUMICSE",
+            isPublic,
+            true,
+            false,
+            null);
+
+    private sealed record EventSeed(
+        Guid Id,
+        string Title,
+        string? Description,
+        CalendarEventType EventType,
+        DateTime StartDateLocal,
+        DateTime? EndDateLocal,
+        bool IsAllDay,
+        string? Location,
+        bool IsPublic,
+        bool IsActive,
+        bool IsCancelled,
+        string? InternalNotes);
 }

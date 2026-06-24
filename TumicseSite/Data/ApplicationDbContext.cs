@@ -101,8 +101,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasMaxLength(4000);
 
             entity.Property(item => item.EventType)
+                .HasConversion<string>()
                 .HasMaxLength(120)
                 .IsRequired();
+
+            entity.Property(item => item.IsAllDay)
+                .HasDefaultValue(false);
 
             entity.Property(item => item.Location)
                 .HasMaxLength(200);
@@ -128,7 +132,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(item => item.CreatedAt)
                 .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
-            entity.HasIndex(item => item.StartsAt);
+            entity.HasIndex(item => item.StartDate);
         });
 
         builder.Entity<LandingSection>(entity =>

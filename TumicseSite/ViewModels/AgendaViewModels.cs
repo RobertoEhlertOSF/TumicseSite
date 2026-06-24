@@ -44,7 +44,7 @@ public sealed class AgendaEventCardViewModel
 
     public string Title { get; init; } = string.Empty;
 
-    public string EventType { get; init; } = string.Empty;
+    public string EventTypeLabel { get; init; } = string.Empty;
 
     public string? Description { get; init; }
 
@@ -55,4 +55,21 @@ public sealed class AgendaEventCardViewModel
     public bool IsCancelled { get; init; }
 
     public string? InternalNotes { get; init; }
+}
+
+public sealed class AgendaEventDetailsViewModel
+{
+    public Guid Id { get; init; }
+
+    public string Title { get; init; } = string.Empty;
+
+    public string EventTypeLabel { get; init; } = string.Empty;
+
+    public string DateLabel { get; init; } = string.Empty;
+
+    public string TimeLabel { get; init; } = string.Empty;
+
+    public string? Location { get; init; }
+
+    public string? Description { get; init; }
 }

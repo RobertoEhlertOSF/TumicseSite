@@ -21,6 +21,8 @@
 
     <div class="admin-shell__actions">
         <a class="btn btn-brand-primary" asp-action="Create">Novo evento</a>
+        <a class="btn btn-brand-outline" asp-action="ExportIcs" asp-route-eventType="@Model.EventTypeFilter" asp-route-period="@Model.PeriodFilter" asp-route-visibility="@Model.VisibilityFilter" asp-route-state="@Model.StateFilter">Exportar .ics</a>
+        <a class="btn btn-brand-outline" asp-action="ExportPdf" asp-route-eventType="@Model.EventTypeFilter" asp-route-period="@Model.PeriodFilter" asp-route-visibility="@Model.VisibilityFilter" asp-route-state="@Model.StateFilter">Exportar PDF</a>
         <a class="btn btn-brand-secondary" asp-area="Admin" asp-controller="Aulas" asp-action="Index">Aulas</a>
         <a class="btn btn-brand-outline" asp-area="" asp-controller="Agenda" asp-action="Index">Agenda publica</a>
         <a class="btn btn-brand-outline" asp-area="" asp-controller="Agenda" asp-action="Interna">Agenda interna</a>
@@ -28,15 +30,19 @@
 
     <form method="get" class="agenda-admin-filters">
         <div class="row g-3 align-items-end">
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label for="eventType" class="form-label">Tipo</label>
+                <select id="eventType" name="eventType" asp-items="Model.EventTypeOptions" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
                 <label for="period" class="form-label">Periodo</label>
                 <select id="period" name="period" asp-items="Model.PeriodOptions" class="form-select"></select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label for="visibility" class="form-label">Visibilidade</label>
                 <select id="visibility" name="visibility" asp-items="Model.VisibilityOptions" class="form-select"></select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label for="state" class="form-label">Estado</label>
                 <select id="state" name="state" asp-items="Model.StateOptions" class="form-select"></select>
             </div>
@@ -68,9 +74,9 @@
                         @foreach (var item in Model.Events)
                         {
                             <tr>
-                                <td>@item.StartsAtLabel</td>
+                                <td>@item.StartDateLabel</td>
                                 <td>@item.Title</td>
-                                <td>@item.EventType</td>
+                                <td>@item.EventTypeLabel</td>
                                 <td>
                                     <span class="agenda-badge @(item.IsPublic ? "agenda-badge--public" : "agenda-badge--internal")">
                                         @item.VisibilityLabel
@@ -95,6 +101,16 @@
                                 <td>@(string.IsNullOrWhiteSpace(item.Location) ? "-" : item.Location)</td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                                        <form asp-action="ToggleActive" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="eventType" value="@Model.EventTypeFilter" />
+                                            <input type="hidden" name="period" value="@Model.PeriodFilter" />
+                                            <input type="hidden" name="visibility" value="@Model.VisibilityFilter" />
+                                            <input type="hidden" name="state" value="@Model.StateFilter" />
+                                            <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-outline-warning" : "btn-outline-success")">
+                                                @(item.IsActive ? "Desativar" : "Ativar")
+                                            </button>
+                                        </form>
                                         <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@item.Id">Detalhes</a>
                                         <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
                                         <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id">Excluir</a>

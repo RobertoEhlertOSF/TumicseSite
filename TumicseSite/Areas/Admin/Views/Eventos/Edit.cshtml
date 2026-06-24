@@ -34,15 +34,25 @@
 
         <div class="row g-3">
             <div class="col-md-6">
-                <label asp-for="StartsAtLocal" class="form-label"></label>
-                <input asp-for="StartsAtLocal" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
-                <span asp-validation-for="StartsAtLocal" class="text-danger"></span>
+                <label asp-for="StartDateLocal" class="form-label"></label>
+                <input asp-for="StartDateLocal" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
+                <span asp-validation-for="StartDateLocal" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="EndsAtLocal" class="form-label"></label>
-                <input asp-for="EndsAtLocal" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
-                <span asp-validation-for="EndsAtLocal" class="text-danger"></span>
+                <label asp-for="EndDateLocal" class="form-label"></label>
+                <input asp-for="EndDateLocal" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-control" />
+                <span asp-validation-for="EndDateLocal" class="text-danger"></span>
             </div>
+        </div>
+
+        <div class="mt-3">
+            <label class="agenda-admin-toggle">
+                <input asp-for="IsAllDay" class="form-check-input" />
+                <span>
+                    <strong>Dia inteiro</strong>
+                    <small>Quando marcado, o sistema considera somente as datas de inicio e fim.</small>
+                </span>
+            </label>
         </div>
 
         <div class="mb-3 mt-3">
@@ -71,11 +81,11 @@
                 <label class="agenda-admin-choice">
                     <input type="radio" asp-for="IsPublic" value="true" class="form-check-input" />
                     <span class="agenda-admin-choice__title">Publico</span>
-                    <span class="agenda-admin-choice__text">Pode aparecer para qualquer visitante em <code>/Agenda</code>.</span>
+                    <span class="agenda-admin-choice__text">Pode aparecer para qualquer visitante em <code>/Calendar</code> e <code>/Agenda</code>.</span>
                 </label>
                 <label class="agenda-admin-choice">
                     <input type="radio" asp-for="IsPublic" value="false" class="form-check-input" />
-                    <span class="agenda-admin-choice__title">Interno</span>
+                    <span class="agenda-admin-choice__title">Privado</span>
                     <span class="agenda-admin-choice__text">Fica visivel apenas em <code>/Agenda/Interna</code> para Admin e Medium.</span>
                 </label>
             </div>

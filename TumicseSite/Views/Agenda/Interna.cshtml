@@ -62,9 +62,9 @@
                                         </div>
 
                                         <div class="agenda-card__badges">
-                                            <span class="agenda-badge agenda-badge--type">@item.EventType</span>
+                                            <span class="agenda-badge agenda-badge--type">@item.EventTypeLabel</span>
                                             <span class="agenda-badge @(item.IsPublic ? "agenda-badge--public" : "agenda-badge--internal")">
-                                                @(item.IsPublic ? "Publico" : "Interno")
+                                                @(item.IsPublic ? "Publico" : "Privado")
                                             </span>
                                             @if (item.IsCancelled)
                                             {

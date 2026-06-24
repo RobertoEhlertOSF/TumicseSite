@@ -18,19 +18,23 @@
         <dl>
             <div>
                 <dt>Tipo</dt>
-                <dd>@Model.EventType</dd>
+                <dd>@Model.EventTypeLabel</dd>
             </div>
             <div>
                 <dt>Inicio</dt>
-                <dd>@Model.StartsAtLabel</dd>
+                <dd>@Model.StartDateLabel</dd>
             </div>
-            @if (!string.IsNullOrWhiteSpace(Model.EndsAtLabel))
+            @if (!string.IsNullOrWhiteSpace(Model.EndDateLabel))
             {
                 <div>
                     <dt>Termino</dt>
-                    <dd>@Model.EndsAtLabel</dd>
+                    <dd>@Model.EndDateLabel</dd>
                 </div>
             }
+            <div>
+                <dt>Formato</dt>
+                <dd>@(Model.IsAllDay ? "Dia inteiro" : "Com horario")</dd>
+            </div>
             <div>
                 <dt>Visibilidade</dt>
                 <dd>

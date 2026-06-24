@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TumicseSite.Data;
 using TumicseSite.Models;
+using TumicseSite.Services;
 using TumicseSite.Utilities;
 using TumicseSite.ViewModels;
 
@@ -12,30 +13,34 @@ namespace TumicseSite.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = IdentityRoles.Admin)]
-public class EventosController(ApplicationDbContext context) : Controller
+public class EventosController(ApplicationDbContext context, IEventExportService eventExportService) : Controller
 {
     private static readonly CultureInfo PtBrCulture = CultureInfo.GetCultureInfo("pt-BR");
 
     public async Task<IActionResult> Index(
+        string? eventType = null,
         string period = AdminEventosFilters.AllValue,
         string visibility = AdminEventosFilters.AllValue,
         string state = AdminEventosFilters.AllValue,
         CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;
-        var query = context.Events.AsNoTracking().AsQueryable();
+        var query = context.Events
+            .AsNoTracking()
+            .AsQueryable()
+            .ApplyEventTypeFilter(eventType);
 
         query = period switch
         {
-            AdminEventosFilters.FutureValue => query.Where(item => (item.EndsAt ?? item.StartsAt) >= now),
-            AdminEventosFilters.PastValue => query.Where(item => (item.EndsAt ?? item.StartsAt) < now),
+            AdminEventosFilters.FutureValue => query.ApplyFutureOnlyFilter(now),
+            AdminEventosFilters.PastValue => query.Where(item => (item.EndDate ?? item.StartDate) < now),
             _ => query
         };
 
         query = visibility switch
         {
             AdminEventosFilters.PublicValue => query.Where(item => item.IsPublic),
-            AdminEventosFilters.InternalValue => query.Where(item => !item.IsPublic),
+            AdminEventosFilters.PrivateValue => query.Where(item => !item.IsPublic),
             _ => query
         };
 
@@ -48,15 +53,17 @@ public class EventosController(ApplicationDbContext context) : Controller
         };
 
         var events = await query
-            .OrderBy(item => item.StartsAt)
+            .OrderBy(item => item.StartDate)
             .ThenBy(item => item.Title)
             .ToListAsync(cancellationToken);
 
         var model = new AdminEventosIndexViewModel
         {
+            EventTypeFilter = eventType,
             PeriodFilter = period,
             VisibilityFilter = visibility,
             StateFilter = state,
+            EventTypeOptions = BuildEventTypeOptions(eventType),
             PeriodOptions = BuildFilterOptions(
                 period,
                 ("Todos os periodos", AdminEventosFilters.AllValue),
@@ -66,7 +73,7 @@ public class EventosController(ApplicationDbContext context) : Controller
                 visibility,
                 ("Todas as visibilidades", AdminEventosFilters.AllValue),
                 ("Publicos", AdminEventosFilters.PublicValue),
-                ("Internos", AdminEventosFilters.InternalValue)),
+                ("Privados", AdminEventosFilters.PrivateValue)),
             StateOptions = BuildFilterOptions(
                 state,
                 ("Todos os estados", AdminEventosFilters.AllValue),
@@ -83,7 +90,11 @@ public class EventosController(ApplicationDbContext context) : Controller
 
     public IActionResult Create()
     {
-        return View(BuildFormViewModel(new AdminEventoFormViewModel()));
+        return View(BuildFormViewModel(new AdminEventoFormViewModel
+        {
+            IsActive = true,
+            IsPublic = true
+        }));
     }
 
     [HttpPost]
@@ -99,14 +110,16 @@ public class EventosController(ApplicationDbContext context) : Controller
         {
             Title = model.Title.Trim(),
             Description = NormalizeOptionalText(model.Description),
-            EventType = model.EventType.Trim(),
-            StartsAt = TumicseTimeZone.FromLocalDateTime(model.StartsAtLocal!.Value),
-            EndsAt = model.EndsAtLocal is null ? null : TumicseTimeZone.FromLocalDateTime(model.EndsAtLocal.Value),
+            EventType = model.EventType!.Value,
+            StartDate = EventDateTimeHelper.ToStoredStartDate(model.StartDateLocal!.Value, model.IsAllDay),
+            EndDate = EventDateTimeHelper.ToStoredEndDate(model.EndDateLocal, model.StartDateLocal.Value, model.IsAllDay),
+            IsAllDay = model.IsAllDay,
             Location = NormalizeOptionalText(model.Location),
             IsPublic = model.IsPublic,
             IsActive = model.IsActive,
             IsCancelled = model.IsCancelled,
-            InternalNotes = NormalizeOptionalText(model.InternalNotes)
+            InternalNotes = NormalizeOptionalText(model.InternalNotes),
+            UpdatedAt = DateTimeOffset.UtcNow
         });
 
         await context.SaveChangesAsync(cancellationToken);
@@ -118,7 +131,7 @@ public class EventosController(ApplicationDbContext context) : Controller
     {
         var item = await context.Events
             .AsNoTracking()
-            .FirstOrDefaultAsync(evento => evento.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(eventItem => eventItem.Id == id, cancellationToken);
 
         if (item is null)
         {
@@ -132,7 +145,7 @@ public class EventosController(ApplicationDbContext context) : Controller
     {
         var item = await context.Events
             .AsNoTracking()
-            .FirstOrDefaultAsync(evento => evento.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(eventItem => eventItem.Id == id, cancellationToken);
 
         if (item is null)
         {
@@ -145,8 +158,9 @@ public class EventosController(ApplicationDbContext context) : Controller
             Title = item.Title,
             Description = item.Description,
             EventType = item.EventType,
-            StartsAtLocal = TumicseTimeZone.ToLocalDateTime(item.StartsAt),
-            EndsAtLocal = item.EndsAt is null ? null : TumicseTimeZone.ToLocalDateTime(item.EndsAt.Value),
+            StartDateLocal = EventDateTimeHelper.ToEditableStartLocal(item),
+            EndDateLocal = EventDateTimeHelper.ToEditableEndLocal(item),
+            IsAllDay = item.IsAllDay,
             Location = item.Location,
             IsPublic = item.IsPublic,
             IsActive = item.IsActive,
@@ -167,7 +181,7 @@ public class EventosController(ApplicationDbContext context) : Controller
         }
 
         var item = await context.Events
-            .FirstOrDefaultAsync(evento => evento.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(eventItem => eventItem.Id == id, cancellationToken);
 
         if (item is null)
         {
@@ -181,9 +195,10 @@ public class EventosController(ApplicationDbContext context) : Controller
 
         item.Title = model.Title.Trim();
         item.Description = NormalizeOptionalText(model.Description);
-        item.EventType = model.EventType.Trim();
-        item.StartsAt = TumicseTimeZone.FromLocalDateTime(model.StartsAtLocal!.Value);
-        item.EndsAt = model.EndsAtLocal is null ? null : TumicseTimeZone.FromLocalDateTime(model.EndsAtLocal.Value);
+        item.EventType = model.EventType!.Value;
+        item.StartDate = EventDateTimeHelper.ToStoredStartDate(model.StartDateLocal!.Value, model.IsAllDay);
+        item.EndDate = EventDateTimeHelper.ToStoredEndDate(model.EndDateLocal, model.StartDateLocal.Value, model.IsAllDay);
+        item.IsAllDay = model.IsAllDay;
         item.Location = NormalizeOptionalText(model.Location);
         item.IsPublic = model.IsPublic;
         item.IsActive = model.IsActive;
@@ -196,11 +211,46 @@ public class EventosController(ApplicationDbContext context) : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleActive(
+        Guid id,
+        string? eventType = null,
+        string period = AdminEventosFilters.AllValue,
+        string visibility = AdminEventosFilters.AllValue,
+        string state = AdminEventosFilters.AllValue,
+        CancellationToken cancellationToken = default)
+    {
+        var item = await context.Events
+            .FirstOrDefaultAsync(eventItem => eventItem.Id == id, cancellationToken);
+
+        if (item is null)
+        {
+            return NotFound();
+        }
+
+        item.IsActive = !item.IsActive;
+        item.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await context.SaveChangesAsync(cancellationToken);
+        TempData["StatusMessage"] = item.IsActive
+            ? "Evento ativado com sucesso."
+            : "Evento desativado com sucesso.";
+
+        return RedirectToAction(nameof(Index), new
+        {
+            eventType,
+            period,
+            visibility,
+            state
+        });
+    }
+
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         var item = await context.Events
             .AsNoTracking()
-            .FirstOrDefaultAsync(evento => evento.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(eventItem => eventItem.Id == id, cancellationToken);
 
         if (item is null)
         {
@@ -211,9 +261,10 @@ public class EventosController(ApplicationDbContext context) : Controller
         {
             Id = item.Id,
             Title = item.Title,
-            EventType = item.EventType,
-            StartsAtLabel = FormatDateTimeLabel(item.StartsAt),
-            VisibilityLabel = item.IsPublic ? "Publico" : "Interno",
+            EventTypeLabel = EventTypeCatalog.GetDisplayName(item.EventType),
+            StartDateLabel = FormatDateTimeLabel(item),
+            VisibilityLabel = item.IsPublic ? "Publico" : "Privado",
+            IsActive = item.IsActive,
             IsCancelled = item.IsCancelled
         });
     }
@@ -223,7 +274,7 @@ public class EventosController(ApplicationDbContext context) : Controller
     public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken cancellationToken)
     {
         var item = await context.Events
-            .FirstOrDefaultAsync(evento => evento.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(eventItem => eventItem.Id == id, cancellationToken);
 
         if (item is null)
         {
@@ -236,14 +287,115 @@ public class EventosController(ApplicationDbContext context) : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    public async Task<IActionResult> ExportIcs(
+        string? eventType = null,
+        string period = AdminEventosFilters.AllValue,
+        string visibility = AdminEventosFilters.AllValue,
+        string state = AdminEventosFilters.AllValue,
+        DateOnly? from = null,
+        DateOnly? to = null,
+        bool birthdaysOnly = false,
+        CancellationToken cancellationToken = default)
+    {
+        var events = await BuildExportQuery(eventType, period, visibility, state, from, to, birthdaysOnly)
+            .OrderBy(item => item.StartDate)
+            .ThenBy(item => item.Title)
+            .ToListAsync(cancellationToken);
+
+        var fileName = BuildExportFileName("ics", eventType, birthdaysOnly, visibility);
+        return File(eventExportService.BuildIcs(events), "text/calendar; charset=utf-8", fileName);
+    }
+
+    public async Task<IActionResult> ExportCsv(
+        string? eventType = null,
+        string period = AdminEventosFilters.AllValue,
+        string visibility = AdminEventosFilters.AllValue,
+        string state = AdminEventosFilters.AllValue,
+        DateOnly? from = null,
+        DateOnly? to = null,
+        bool birthdaysOnly = false,
+        CancellationToken cancellationToken = default)
+    {
+        var events = await BuildExportQuery(eventType, period, visibility, state, from, to, birthdaysOnly)
+            .OrderBy(item => item.StartDate)
+            .ThenBy(item => item.Title)
+            .ToListAsync(cancellationToken);
+
+        var fileName = BuildExportFileName("csv", eventType, birthdaysOnly, visibility);
+        return File(eventExportService.BuildCsv(events), "text/csv; charset=utf-8", fileName);
+    }
+
+    public async Task<IActionResult> ExportPdf(
+        string? eventType = null,
+        string period = AdminEventosFilters.AllValue,
+        string visibility = AdminEventosFilters.AllValue,
+        string state = AdminEventosFilters.AllValue,
+        DateOnly? from = null,
+        DateOnly? to = null,
+        bool birthdaysOnly = false,
+        CancellationToken cancellationToken = default)
+    {
+        var events = await BuildExportQuery(eventType, period, visibility, state, from, to, birthdaysOnly)
+            .OrderBy(item => item.StartDate)
+            .ThenBy(item => item.Title)
+            .ToListAsync(cancellationToken);
+
+        var fileName = BuildExportFileName("pdf", eventType, birthdaysOnly, visibility);
+        return File(
+            eventExportService.BuildPdf(events, "Agenda administrativa TUMICSE", includeAdministrativeFields: true),
+            "application/pdf",
+            fileName);
+    }
+
+    private IQueryable<Event> BuildExportQuery(
+        string? eventType,
+        string period,
+        string visibility,
+        string state,
+        DateOnly? from,
+        DateOnly? to,
+        bool birthdaysOnly)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var query = context.Events
+            .AsNoTracking()
+            .AsQueryable()
+            .ApplyEventTypeFilter(eventType, birthdaysOnly)
+            .ApplyDateRangeFilter(from, to);
+
+        query = period switch
+        {
+            AdminEventosFilters.FutureValue => query.ApplyFutureOnlyFilter(now),
+            AdminEventosFilters.PastValue => query.Where(item => (item.EndDate ?? item.StartDate) < now),
+            _ => query
+        };
+
+        query = visibility switch
+        {
+            AdminEventosFilters.PublicValue => query.Where(item => item.IsPublic),
+            AdminEventosFilters.PrivateValue => query.Where(item => !item.IsPublic),
+            _ => query
+        };
+
+        query = state switch
+        {
+            AdminEventosFilters.ActiveValue => query.Where(item => item.IsActive && !item.IsCancelled),
+            AdminEventosFilters.InactiveValue => query.Where(item => !item.IsActive),
+            AdminEventosFilters.CancelledValue => query.Where(item => item.IsCancelled),
+            _ => query
+        };
+
+        return query;
+    }
+
     private static AdminEventoFormViewModel BuildFormViewModel(AdminEventoFormViewModel model)
     {
         model.EventTypes = EventTypeCatalog.All
             .Select(eventType => new SelectListItem
             {
-                Text = eventType,
-                Value = eventType,
-                Selected = string.Equals(model.EventType, eventType, StringComparison.Ordinal)
+                Text = EventTypeCatalog.GetDisplayName(eventType),
+                Value = eventType.ToString(),
+                Selected = model.EventType == eventType
             })
             .ToArray();
 
@@ -257,9 +409,9 @@ public class EventosController(ApplicationDbContext context) : Controller
             return false;
         }
 
-        if (!EventTypeCatalog.IsValid(model.EventType))
+        if (model.EventType is null)
         {
-            ModelState.AddModelError(nameof(model.EventType), "Selecione um tipo de evento valido.");
+            ModelState.AddModelError(nameof(model.EventType), "Selecione o tipo do evento.");
             return false;
         }
 
@@ -272,9 +424,9 @@ public class EventosController(ApplicationDbContext context) : Controller
         {
             Id = item.Id,
             Title = item.Title,
-            EventType = item.EventType,
-            StartsAtLabel = FormatDateTimeLabel(item.StartsAt),
-            VisibilityLabel = item.IsPublic ? "Publico" : "Interno",
+            EventTypeLabel = EventTypeCatalog.GetDisplayName(item.EventType),
+            StartDateLabel = FormatDateTimeLabel(item),
+            VisibilityLabel = item.IsPublic ? "Publico" : "Privado",
             IsPublic = item.IsPublic,
             IsActive = item.IsActive,
             IsCancelled = item.IsCancelled,
@@ -288,10 +440,11 @@ public class EventosController(ApplicationDbContext context) : Controller
         {
             Id = item.Id,
             Title = item.Title,
-            EventType = item.EventType,
-            StartsAtLabel = FormatDateTimeLabel(item.StartsAt),
-            EndsAtLabel = item.EndsAt is null ? null : FormatDateTimeLabel(item.EndsAt.Value),
-            VisibilityLabel = item.IsPublic ? "Publico" : "Interno",
+            EventTypeLabel = EventTypeCatalog.GetDisplayName(item.EventType),
+            StartDateLabel = FormatDateTimeLabel(item, includeEndDate: false),
+            EndDateLabel = item.EndDate is null ? null : FormatEndDateLabel(item),
+            IsAllDay = item.IsAllDay,
+            VisibilityLabel = item.IsPublic ? "Publico" : "Privado",
             IsActive = item.IsActive,
             IsCancelled = item.IsCancelled,
             Description = NormalizeOptionalText(item.Description),
@@ -302,10 +455,48 @@ public class EventosController(ApplicationDbContext context) : Controller
         };
     }
 
-    private static string FormatDateTimeLabel(DateTimeOffset value)
+    private static string FormatDateTimeLabel(Event item, bool includeEndDate = true)
     {
-        var localDateTime = TumicseTimeZone.ToLocalDateTime(value);
-        return $"{PtBrCulture.TextInfo.ToTitleCase(localDateTime.ToString("dddd", PtBrCulture))}, {localDateTime:dd/MM/yyyy HH:mm}";
+        var localStart = EventDateTimeHelper.ToLocalStartDate(item);
+        var localEnd = EventDateTimeHelper.ToLocalEndDate(item);
+
+        if (item.IsAllDay)
+        {
+            if (includeEndDate && localEnd is not null && localEnd.Value.Date > localStart.Date)
+            {
+                return $"{localStart:dd/MM/yyyy} ate {localEnd.Value:dd/MM/yyyy} (dia inteiro)";
+            }
+
+            return $"{PtBrCulture.TextInfo.ToTitleCase(localStart.ToString("dddd", PtBrCulture))}, {localStart:dd/MM/yyyy} (dia inteiro)";
+        }
+
+        if (localEnd is null || localEnd.Value == localStart)
+        {
+            return $"{PtBrCulture.TextInfo.ToTitleCase(localStart.ToString("dddd", PtBrCulture))}, {localStart:dd/MM/yyyy HH:mm}";
+        }
+
+        if (localEnd.Value.Date == localStart.Date)
+        {
+            return $"{PtBrCulture.TextInfo.ToTitleCase(localStart.ToString("dddd", PtBrCulture))}, {localStart:dd/MM/yyyy HH:mm} as {localEnd.Value:HH:mm}";
+        }
+
+        return $"{localStart:dd/MM/yyyy HH:mm} ate {localEnd.Value:dd/MM/yyyy HH:mm}";
+    }
+
+    private static string FormatEndDateLabel(Event item)
+    {
+        var localEnd = EventDateTimeHelper.ToLocalEndDate(item);
+        if (localEnd is null)
+        {
+            return string.Empty;
+        }
+
+        if (item.IsAllDay)
+        {
+            return $"{PtBrCulture.TextInfo.ToTitleCase(localEnd.Value.ToString("dddd", PtBrCulture))}, {localEnd.Value:dd/MM/yyyy}";
+        }
+
+        return $"{PtBrCulture.TextInfo.ToTitleCase(localEnd.Value.ToString("dddd", PtBrCulture))}, {localEnd.Value:dd/MM/yyyy HH:mm}";
     }
 
     private static string FormatAuditDateTimeLabel(DateTimeOffset value)
@@ -336,5 +527,49 @@ public class EventosController(ApplicationDbContext context) : Controller
                 Selected = string.Equals(option.Value, selectedValue, StringComparison.OrdinalIgnoreCase)
             })
             .ToArray();
+    }
+
+    private static IReadOnlyList<SelectListItem> BuildEventTypeOptions(string? selectedEventType)
+    {
+        var options = new List<SelectListItem>
+        {
+            new()
+            {
+                Text = "Todos os tipos",
+                Value = string.Empty,
+                Selected = string.IsNullOrWhiteSpace(selectedEventType)
+            }
+        };
+
+        options.AddRange(EventTypeCatalog.All.Select(eventType => new SelectListItem
+        {
+            Text = EventTypeCatalog.GetDisplayName(eventType),
+            Value = eventType.ToString(),
+            Selected = string.Equals(selectedEventType, eventType.ToString(), StringComparison.OrdinalIgnoreCase)
+        }));
+
+        return options;
+    }
+
+    private static string BuildExportFileName(
+        string extension,
+        string? eventType,
+        bool birthdaysOnly,
+        string visibility)
+    {
+        var scope = visibility switch
+        {
+            AdminEventosFilters.PublicValue => "publicos",
+            AdminEventosFilters.PrivateValue => "privados",
+            _ => "todos"
+        };
+
+        var filter = birthdaysOnly
+            ? "aniversarios"
+            : EventTypeCatalog.TryParse(eventType, out var parsedEventType)
+                ? parsedEventType.ToString().ToLowerInvariant()
+                : "tipos";
+
+        return $"tumicse-eventos-admin-{scope}-{filter}.{extension}";
     }
 }
