@@ -8,12 +8,12 @@ public static class ApplicationDbInitializer
 {
     private static readonly IReadOnlyDictionary<string, string> InitialSiteSettings = new Dictionary<string, string>
     {
-        ["SiteName"] = "Tumicse",
+        ["SiteName"] = "TUMICSE",
         ["WhatsAppNumber"] = string.Empty,
-        ["WhatsAppDefaultMessage"] = "Olá! Gostaria de falar com o Tumicse.",
-        ["InstagramUrl"] = string.Empty,
-        ["Address"] = string.Empty,
-        ["GoogleMapsUrl"] = string.Empty
+        ["WhatsAppDefaultMessage"] = "Ola! Gostaria de falar com o TUMICSE.",
+        ["InstagramUrl"] = "https://www.instagram.com/tumicse_oficial/",
+        ["Address"] = "Rua Assis, 96 - Baeta Neves - Sao Bernardo do Campo/SP",
+        ["GoogleMapsUrl"] = "https://www.google.com/maps/search/?api=1&query=Rua%20Assis%2C%2096%20-%20Baeta%20Neves%20-%20Sao%20Bernardo%20do%20Campo%2FSP"
     };
 
     private static readonly (string Name, int DisplayOrder)[] InitialCategories =
@@ -24,14 +24,14 @@ public static class ApplicationDbInitializer
 
     private static readonly (string Title, string YouTubeVideoId, string CategoryName, int DisplayOrder)[] InitialLessonVideos =
     [
-        ("História da Umbanda", "sRPx6VTLMmw", "Aulas 2020", 1),
+        ("Historia da Umbanda", "sRPx6VTLMmw", "Aulas 2020", 1),
         ("Boiadeiros", "rfKETMoerGw", "Aulas 2020", 2),
         ("Marinheiros", "A1kBBB4UuoY", "Aulas 2020", 3),
         ("Baianos", "X2YD18cUrg0", "Aulas 2020", 4),
-        ("Coroa Mediúnica", "QZiU7TSoeJk", "Aulas 2021", 1),
-        ("Educação Mediúnica", "EBsQ0Tuw4Rg", "Aulas 2021", 2),
-        ("Desenvolvimento Mediúnico", "lysOndPYrMo", "Aulas 2021", 3),
-        ("Desenvolvimento Mediúnico II", "EBsQ0Tuw4Rg", "Aulas 2021", 4)
+        ("Coroa Mediunica", "QZiU7TSoeJk", "Aulas 2021", 1),
+        ("Educacao Mediunica", "EBsQ0Tuw4Rg", "Aulas 2021", 2),
+        ("Desenvolvimento Mediunico", "lysOndPYrMo", "Aulas 2021", 3),
+        ("Desenvolvimento Mediunico II", "EBsQ0Tuw4Rg", "Aulas 2021", 4)
     ];
 
     public static async Task InitializeAsync(IServiceProvider services, IConfiguration configuration)
@@ -167,7 +167,7 @@ public static class ApplicationDbInitializer
 
             EnsureSuccess(
                 await userManager.CreateAsync(adminUser, password),
-                "criar o usuário administrador inicial");
+                "criar o usuario administrador inicial");
         }
         else
         {
@@ -195,7 +195,7 @@ public static class ApplicationDbInitializer
             {
                 EnsureSuccess(
                     await userManager.UpdateAsync(adminUser),
-                    "atualizar o usuário administrador inicial");
+                    "atualizar o usuario administrador inicial");
             }
         }
 
@@ -208,7 +208,7 @@ public static class ApplicationDbInitializer
         {
             EnsureSuccess(
                 await userManager.AddToRolesAsync(adminUser, missingRoles),
-                "atribuir roles ao usuário administrador inicial");
+                "atribuir roles ao usuario administrador inicial");
         }
     }
 
@@ -220,6 +220,6 @@ public static class ApplicationDbInitializer
         }
 
         var errors = string.Join("; ", result.Errors.Select(error => error.Description));
-        throw new InvalidOperationException($"Não foi possível {operation}: {errors}");
+        throw new InvalidOperationException($"Nao foi possivel {operation}: {errors}");
     }
 }

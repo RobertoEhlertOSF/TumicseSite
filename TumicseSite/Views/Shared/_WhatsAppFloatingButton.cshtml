@@ -1,0 +1,9 @@
+@model WhatsAppFloatingButtonViewModel?
+
+@if (Model is not null)
+{
+    <a class="whatsapp-floating-button" href="@Model.Url" target="_blank" rel="noopener noreferrer" aria-label="@Model.Label" title="@Model.Label">
+        <span class="whatsapp-floating-button__icon" aria-hidden="true">WA</span>
+        <span class="whatsapp-floating-button__label">@Model.Label</span>
+    </a>
+}

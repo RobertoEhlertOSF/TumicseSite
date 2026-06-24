@@ -1,30 +1,85 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@inject TumicseSite.Services.ISiteSettingsService SiteSettingsService
+@{
+    var layoutSettings = await SiteSettingsService.GetValuesAsync(
+        new[]
+        {
+            SiteSettingKeys.SiteName,
+            SiteSettingKeys.WhatsAppNumber,
+            SiteSettingKeys.WhatsAppDefaultMessage
+        });
+
+    var siteName = layoutSettings.TryGetValue(SiteSettingKeys.SiteName, out var configuredSiteName)
+        && !string.IsNullOrWhiteSpace(configuredSiteName)
+        ? configuredSiteName.Trim()
+        : "TUMICSE";
+
+    var templeName = "Templo de Umbanda Mãe Iansã e Caboclo Sete Estrelas";
+
+    var whatsAppButton = WhatsAppFloatingButtonViewModel.Create(
+        layoutSettings.TryGetValue(SiteSettingKeys.WhatsAppNumber, out var whatsappNumber) ? whatsappNumber : null,
+        layoutSettings.TryGetValue(SiteSettingKeys.WhatsAppDefaultMessage, out var whatsappMessage) ? whatsappMessage : null);
+
+    var pageTitle = ViewData["Title"]?.ToString();
+    var title = string.IsNullOrWhiteSpace(pageTitle) ? siteName : $"{pageTitle} - {siteName}";
+    var isHomePage =
+        string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", System.StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", System.StringComparison.OrdinalIgnoreCase);
+    var isClassesPage =
+        string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", System.StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Classes", System.StringComparison.OrdinalIgnoreCase);
+    var classesReturnUrl = Url.Action("Classes", "Home") ?? "/Home/Classes";
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TumicseSite</title>
+    <title>@title</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/brand.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TumicseSite.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TumicseSite</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+<body class="site-body">
+    <header class="site-header sticky-top">
+        <nav class="navbar navbar-expand-lg site-navbar">
+            <div class="container">
+                <a class="navbar-brand site-brand" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="inicio" aria-label="Ir para a página inicial do TUMICSE">
+                    <img class="site-brand__logo" src="~/tumicse_logo.png" alt="Logo do Templo de Umbanda Mãe Iansã e Caboclo Sete Estrelas" />
+                    <span class="site-brand__content">
+                        <span class="site-brand__eyebrow">Templo de Umbanda</span>
+                        <span class="site-brand__text">@siteName</span>
+                        <span class="site-brand__subtitle">Mãe Iansã e Caboclo Sete Estrelas</span>
+                    </span>
+                </a>
+                <button class="navbar-toggler site-navbar__toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavigation" aria-controls="publicNavigation" aria-expanded="false" aria-label="Abrir navegação principal">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="publicNavigation">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="inicio">Início</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="sobre">Nossa Casa</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="giras">Giras</a>
+                        </li>
+                        <li class="nav-item">
+                            @if (User.Identity?.IsAuthenticated ?? false)
+                            {
+                                <a class="nav-link site-nav__link" asp-area="" asp-controller="Home" asp-action="Classes">Aulas</a>
+                            }
+                            else
+                            {
+                                <a class="nav-link site-nav__link" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@classesReturnUrl">Aulas</a>
+                            }
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="localizacao">Localização</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -32,17 +87,46 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main role="main" class="site-main">
+        @if (isHomePage || isClassesPage)
+        {
+            @RenderBody()
+        }
+        else
+        {
+            <div class="container py-5">
+                @RenderBody()
+            </div>
+        }
+    </main>
+
+    <footer class="site-footer">
         <div class="container">
-            &copy; 2026 - TumicseSite - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="site-footer__content">
+                <div class="site-footer__brand">
+                    <img class="site-footer__logo" src="~/tumicse_logo.png" alt="" aria-hidden="true" />
+                    <div class="site-footer__text">
+                        <span class="site-footer__eyebrow">@siteName</span>
+                        <strong class="site-footer__title">@templeName</strong>
+                        <span class="site-footer__note">Acolhimento, fé, ancestralidade, caridade e respeito aos fundamentos da Umbanda.</span>
+                    </div>
+                </div>
+                <div class="site-footer__links">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="giras">Giras</a>
+                    <a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="localizacao">Localização</a>
+                    <a href="https://www.instagram.com/tumicse_oficial/" target="_blank" rel="noopener noreferrer">Instagram</a>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </div>
+            </div>
+            <div class="site-footer__meta">
+                <span>&copy; @DateTime.UtcNow.Year @templeName</span>
+            </div>
         </div>
     </footer>
+
+    @await Html.PartialAsync("_WhatsAppFloatingButton", whatsAppButton)
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

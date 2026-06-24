@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TumicseSite.Data;
 using TumicseSite.Identity;
 using TumicseSite.Models;
+using TumicseSite.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     .AddSignInManager<ActiveUserSignInManager>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+builder.Services.AddScoped<ISiteSettingsService, SiteSettingsService>();
 
 var app = builder.Build();
 

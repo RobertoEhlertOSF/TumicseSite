@@ -1,0 +1,100 @@
+@model ClassesIndexViewModel
+@{
+    ViewData["Title"] = "Aulas";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/classes.css" asp-append-version="true" />
+}
+
+<section class="classes-page">
+    <div class="container">
+        <section class="classes-hero">
+            <div class="classes-hero__panel">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-6">
+                        <span class="site-section__eyebrow">Área restrita</span>
+                        <div class="classes-hero__brand">
+                            <img class="classes-hero__logo" src="~/tumicse_logo.png" alt="Logo do TUMICSE" />
+                            <div class="classes-hero__brand-text">
+                                <span class="classes-hero__brand-name">@Model.SiteName</span>
+                                <span class="classes-hero__brand-subtitle">@Model.TempleName</span>
+                            </div>
+                        </div>
+                        <h1 class="classes-hero__title">@Model.HeroTitle</h1>
+                        <p class="classes-hero__subtitle">@Model.HeroSubtitle</p>
+                        <p class="classes-hero__description">@Model.HeroDescription</p>
+                        <div class="classes-hero__highlights">
+                            @foreach (var highlight in Model.HeroHighlights)
+                            {
+                                <span class="classes-hero__pill">@highlight</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <figure class="classes-hero__media">
+                            <img src="~/images/tumicse-casa-fotos.png" alt="Encontros e estudos no TUMICSE" />
+                        </figure>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="classes-section">
+            <div class="row g-4 align-items-start">
+                <div class="col-lg-4 col-xl-3">
+                    <aside class="classes-sidebar">
+                        <div class="classes-sidebar__header">
+                            <span class="classes-sidebar__eyebrow">Navegação</span>
+                            <h2 class="classes-sidebar__title">Menu de aulas</h2>
+                            <p class="classes-sidebar__text">Escolha um ano e abra a aula desejada.</p>
+                        </div>
+
+                        <nav class="menu classes-menu" aria-label="Lista de aulas de teologia de Umbanda Sagrada">
+                            @foreach (var group in Model.LessonGroups)
+                            {
+                                <details class="sub-menu" open="@(group.IsExpanded ? "open" : null)">
+                                    <summary class="sub-menu__summary">
+                                        <span>@group.Title</span>
+                                        <span class="sub-menu__count">@group.Lessons.Count</span>
+                                    </summary>
+                                    <ul class="sub-menu__list">
+                                        @foreach (var lesson in group.Lessons)
+                                        {
+                                            <li>
+                                                <a class="lesson-link @(lesson.IsSelected ? "is-active" : string.Empty)" asp-action="Classes" asp-route-lesson="@lesson.Slug">
+                                                    <span class="lesson-link__title">@lesson.Title</span>
+                                                    <span class="lesson-link__meta">@lesson.YearLabel</span>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </details>
+                            }
+                        </nav>
+                    </aside>
+                </div>
+
+                <div class="col-lg-8 col-xl-9">
+                    <article class="video-card">
+                        <div class="video-card__media">
+                            <div class="ratio ratio-16x9 video-card__frame">
+                                <iframe src="@Model.SelectedLesson.PlayerUrl"
+                                        title="Vídeo da aula @Model.SelectedLesson.Title"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
+                        <div class="video-card__body">
+                            <span class="video-card__eyebrow">@Model.SelectedLesson.YearLabel</span>
+                            <h2 class="video-card__title">@Model.SelectedLesson.Title</h2>
+                            <p class="video-card__description">@Model.SelectedLesson.Summary</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </div>
+</section>
