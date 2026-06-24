@@ -1,0 +1,67 @@
+@model MembrosIndexViewModel
+@{
+    ViewData["Title"] = "Area de Membros";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/members.css" asp-append-version="true" />
+}
+
+<section class="members-page">
+    <div class="container">
+        <div class="members-hero">
+            <span class="members-hero__eyebrow">Area reservada</span>
+            <h1 class="members-hero__title">Tudo o que nao e publico fica centralizado aqui.</h1>
+            <p class="members-hero__subtitle">
+                @Model.MemberName, use esta area para acessar estudos, agenda interna e, quando aplicavel, os atalhos administrativos da casa.
+            </p>
+        </div>
+
+        <section class="members-section">
+            <div class="members-section__header">
+                <h2 class="members-section__title">Acessos principais</h2>
+                <p class="members-section__text">Os caminhos mais usados pelos membros ficam reunidos neste painel.</p>
+            </div>
+
+            <div class="members-grid">
+                @foreach (var link in Model.PrimaryLinks)
+                {
+                    <article class="members-card">
+                        <span class="members-card__eyebrow">@link.Eyebrow</span>
+                        <h3 class="members-card__title">@link.Title</h3>
+                        <p class="members-card__text">@link.Description</p>
+                        <a class="btn btn-brand-primary"
+                           asp-area="@link.Area"
+                           asp-controller="@link.Controller"
+                           asp-action="@link.Action">@link.CtaLabel</a>
+                    </article>
+                }
+            </div>
+        </section>
+
+        @if (Model.IsAdmin && Model.AdminLinks.Count > 0)
+        {
+            <section class="members-section members-section--admin">
+                <div class="members-section__header">
+                    <h2 class="members-section__title">Administracao</h2>
+                    <p class="members-section__text">Ferramentas de gestao reservadas ao perfil Admin.</p>
+                </div>
+
+                <div class="members-grid">
+                    @foreach (var link in Model.AdminLinks)
+                    {
+                        <article class="members-card members-card--admin">
+                            <span class="members-card__eyebrow">@link.Eyebrow</span>
+                            <h3 class="members-card__title">@link.Title</h3>
+                            <p class="members-card__text">@link.Description</p>
+                            <a class="btn btn-brand-secondary"
+                               asp-area="@link.Area"
+                               asp-controller="@link.Controller"
+                               asp-action="@link.Action">@link.CtaLabel</a>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+</section>
