@@ -5,10 +5,11 @@ public class Event
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public string EventType { get; set; } = EventTypeCatalog.Outros;
-    public DateTimeOffset StartsAt { get; set; }
-    public DateTimeOffset? EndsAt { get; set; }
+    public DateTimeOffset StartDate { get; set; }
+    public DateTimeOffset? EndDate { get; set; }
+    public bool IsAllDay { get; set; }
     public string? Location { get; set; }
+    public CalendarEventType EventType { get; set; } = CalendarEventType.Other;
     public string? Address { get; set; }
     public string? GoogleMapsUrl { get; set; }
     public bool IsPublic { get; set; } = true;

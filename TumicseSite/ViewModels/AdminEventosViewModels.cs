@@ -1,15 +1,20 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using TumicseSite.Models;
 
 namespace TumicseSite.ViewModels;
 
 public sealed class AdminEventosIndexViewModel
 {
+    public string? EventTypeFilter { get; init; }
+
     public string PeriodFilter { get; init; } = AdminEventosFilters.AllValue;
 
     public string VisibilityFilter { get; init; } = AdminEventosFilters.AllValue;
 
     public string StateFilter { get; init; } = AdminEventosFilters.AllValue;
+
+    public IReadOnlyList<SelectListItem> EventTypeOptions { get; init; } = [];
 
     public IReadOnlyList<SelectListItem> PeriodOptions { get; init; } = [];
 
@@ -26,9 +31,9 @@ public sealed class AdminEventoListItemViewModel
 
     public string Title { get; init; } = string.Empty;
 
-    public string EventType { get; init; } = string.Empty;
+    public string EventTypeLabel { get; init; } = string.Empty;
 
-    public string StartsAtLabel { get; init; } = string.Empty;
+    public string StartDateLabel { get; init; } = string.Empty;
 
     public string VisibilityLabel { get; init; } = string.Empty;
 
@@ -51,16 +56,18 @@ public sealed class AdminEventoFormViewModel : IValidatableObject
     public string Title { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Selecione o tipo do evento.")]
-    [StringLength(120)]
     [Display(Name = "Tipo de evento")]
-    public string EventType { get; set; } = string.Empty;
+    public CalendarEventType? EventType { get; set; }
 
     [Required(ErrorMessage = "Informe a data e hora de inicio.")]
-    [Display(Name = "Data e hora de inicio")]
-    public DateTime? StartsAtLocal { get; set; }
+    [Display(Name = "Inicio")]
+    public DateTime? StartDateLocal { get; set; }
 
-    [Display(Name = "Data e hora de termino")]
-    public DateTime? EndsAtLocal { get; set; }
+    [Display(Name = "Fim")]
+    public DateTime? EndDateLocal { get; set; }
+
+    [Display(Name = "Dia inteiro")]
+    public bool IsAllDay { get; set; }
 
     [StringLength(4000)]
     [Display(Name = "Descricao")]
@@ -87,18 +94,24 @@ public sealed class AdminEventoFormViewModel : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (StartsAtLocal is null)
+        if (StartDateLocal is null)
         {
             yield return new ValidationResult(
                 "Informe a data e hora de inicio.",
-                [nameof(StartsAtLocal)]);
+                [nameof(StartDateLocal)]);
         }
 
-        if (EndsAtLocal is not null && StartsAtLocal is not null && EndsAtLocal < StartsAtLocal)
+        if (EndDateLocal is not null && StartDateLocal is not null)
         {
-            yield return new ValidationResult(
-                "A data e hora de termino nao pode ser menor que a data e hora de inicio.",
-                [nameof(EndsAtLocal)]);
+            var normalizedStart = IsAllDay ? StartDateLocal.Value.Date : StartDateLocal.Value;
+            var normalizedEnd = IsAllDay ? EndDateLocal.Value.Date : EndDateLocal.Value;
+
+            if (normalizedEnd < normalizedStart)
+            {
+                yield return new ValidationResult(
+                    "A data de termino nao pode ser menor que a data de inicio.",
+                    [nameof(EndDateLocal)]);
+            }
         }
     }
 }
@@ -109,11 +122,13 @@ public sealed class AdminEventoDetailsViewModel
 
     public string Title { get; init; } = string.Empty;
 
-    public string EventType { get; init; } = string.Empty;
+    public string EventTypeLabel { get; init; } = string.Empty;
 
-    public string StartsAtLabel { get; init; } = string.Empty;
+    public string StartDateLabel { get; init; } = string.Empty;
 
-    public string? EndsAtLabel { get; init; }
+    public string? EndDateLabel { get; init; }
+
+    public bool IsAllDay { get; init; }
 
     public string VisibilityLabel { get; init; } = string.Empty;
 
@@ -138,11 +153,13 @@ public sealed class AdminEventoDeleteViewModel
 
     public string Title { get; init; } = string.Empty;
 
-    public string EventType { get; init; } = string.Empty;
+    public string EventTypeLabel { get; init; } = string.Empty;
 
-    public string StartsAtLabel { get; init; } = string.Empty;
+    public string StartDateLabel { get; init; } = string.Empty;
 
     public string VisibilityLabel { get; init; } = string.Empty;
+
+    public bool IsActive { get; init; }
 
     public bool IsCancelled { get; init; }
 }
@@ -153,7 +170,7 @@ public static class AdminEventosFilters
     public const string FutureValue = "future";
     public const string PastValue = "past";
     public const string PublicValue = "public";
-    public const string InternalValue = "internal";
+    public const string PrivateValue = "private";
     public const string ActiveValue = "active";
     public const string InactiveValue = "inactive";
     public const string CancelledValue = "cancelled";

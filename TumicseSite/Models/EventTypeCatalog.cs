@@ -2,26 +2,35 @@ namespace TumicseSite.Models;
 
 public static class EventTypeCatalog
 {
-    public const string GiraDeUmbanda = "Gira de Umbanda";
-    public const string Estudo = "Estudo";
-    public const string DesenvolvimentoMediunico = "Desenvolvimento Mediunico";
-    public const string Reuniao = "Reuniao";
-    public const string EventoEspecial = "Evento Especial";
-    public const string Atendimento = "Atendimento";
-    public const string Outros = "Outros";
+    public static IReadOnlyList<CalendarEventType> All { get; } = Enum.GetValues<CalendarEventType>();
 
-    public static IReadOnlyList<string> All { get; } =
-    [
-        GiraDeUmbanda,
-        Estudo,
-        DesenvolvimentoMediunico,
-        Reuniao,
-        EventoEspecial,
-        Atendimento,
-        Outros
-    ];
+    public static bool TryParse(string? value, out CalendarEventType eventType)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            eventType = default;
+            return false;
+        }
 
-    public static bool IsValid(string? value) =>
-        !string.IsNullOrWhiteSpace(value) &&
-        All.Contains(value.Trim(), StringComparer.Ordinal);
+        return Enum.TryParse(value.Trim(), ignoreCase: true, out eventType) &&
+               All.Contains(eventType);
+    }
+
+    public static string GetDisplayName(CalendarEventType eventType) =>
+        eventType switch
+        {
+            CalendarEventType.PublicWork => "Trabalho publico",
+            CalendarEventType.PrivateWork => "Trabalho privado",
+            CalendarEventType.Gira => "Gira",
+            CalendarEventType.Development => "Desenvolvimento",
+            CalendarEventType.Study => "Estudo",
+            CalendarEventType.Lecture => "Palestra",
+            CalendarEventType.Feast => "Festa",
+            CalendarEventType.Birthday => "Aniversario",
+            CalendarEventType.Maintenance => "Manutencao",
+            _ => "Outro"
+        };
+
+    public static bool IsPrivateByDefault(CalendarEventType eventType) =>
+        eventType is CalendarEventType.PrivateWork or CalendarEventType.Maintenance;
 }

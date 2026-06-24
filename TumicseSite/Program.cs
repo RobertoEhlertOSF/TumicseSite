@@ -25,6 +25,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<IEventExportService, EventExportService>();
 builder.Services.AddScoped<ISiteSettingsService, SiteSettingsService>();
 
 var app = builder.Build();
@@ -56,6 +57,12 @@ app.MapStaticAssets();
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
+    .WithStaticAssets();
+
+app.MapControllerRoute(
+    name: "calendar",
+    pattern: "Calendar/{action=Index}/{id?}",
+    defaults: new { controller = "Agenda" })
     .WithStaticAssets();
 
 app.MapControllerRoute(

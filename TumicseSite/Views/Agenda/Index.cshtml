@@ -19,15 +19,17 @@
                     </div>
                     <div class="agenda-hero__summary">
                         <span class="agenda-hero__pill">@Model.EventCount evento@(Model.EventCount == 1 ? string.Empty : "s") futuro@(Model.EventCount == 1 ? string.Empty : "s")</span>
-                        <span class="agenda-hero__pill agenda-hero__pill--soft">Somente compromissos publicos ativos</span>
+                        <span class="agenda-hero__pill agenda-hero__pill--soft">Somente eventos publicos ativos</span>
                     </div>
-                    @if (User.Identity?.IsAuthenticated == true &&
-                        (User.IsInRole(TumicseSite.Data.IdentityRoles.Admin) || User.IsInRole(TumicseSite.Data.IdentityRoles.Medium)))
-                    {
-                        <div class="agenda-hero__actions">
+                    <div class="agenda-hero__actions">
+                        <a class="btn btn-brand-primary" asp-action="ExportIcs">Exportar calendario .ics</a>
+                        <a class="btn btn-brand-secondary" asp-action="ExportPdf">Exportar agenda em PDF</a>
+                        @if (User.Identity?.IsAuthenticated == true &&
+                            (User.IsInRole(TumicseSite.Data.IdentityRoles.Admin) || User.IsInRole(TumicseSite.Data.IdentityRoles.Medium)))
+                        {
                             <a class="btn btn-brand-primary" asp-controller="Membros" asp-action="Index">Area de membros</a>
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
             </div>
         </div>
@@ -61,7 +63,7 @@
                                         </div>
 
                                         <div class="agenda-card__badges">
-                                            <span class="agenda-badge agenda-badge--type">@item.EventType</span>
+                                            <span class="agenda-badge agenda-badge--type">@item.EventTypeLabel</span>
                                             <span class="agenda-badge @(item.IsPublic ? "agenda-badge--public" : "agenda-badge--internal")">
                                                 @(item.IsPublic ? "Publico" : "Interno")
                                             </span>
@@ -82,6 +84,10 @@
                                         {
                                             <p class="agenda-card__location">Local: @item.Location</p>
                                         }
+
+                                        <div class="agenda-card__actions">
+                                            <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@item.Id">Ver detalhes</a>
+                                        </div>
                                     </div>
                                 </article>
                             }

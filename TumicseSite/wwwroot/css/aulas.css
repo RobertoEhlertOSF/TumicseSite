@@ -316,7 +316,7 @@
   border: 1px solid rgba(242, 183, 5, 0.18);
   border-radius: var(--brand-radius);
   background:
-    linear-gradient(145deg, rgba(43, 27, 24, 0.96), rgba(64, 38, 31, 0.92)),
+    linear-gradient(145deg, rgba(0, 152, 70, 0.96), rgba(0, 0, 0, 0.92)),
     radial-gradient(circle at top right, rgba(242, 183, 5, 0.12), transparent 34%);
   box-shadow: 0 22px 48px rgba(8, 5, 5, 0.28);
 }
