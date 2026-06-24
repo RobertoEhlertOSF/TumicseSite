@@ -1,8 +1,203 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model HomeIndexViewModel
+@{
+    ViewData["Title"] = "Início";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/classes.css" asp-append-version="true" />
+}
+
+<section id="inicio" class="home-hero">
+    <div class="container">
+        <div class="home-hero__panel">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-6">
+                    <span class="site-section__eyebrow">Umbanda Sagrada, acolhimento e caridade</span>
+                    <div class="home-hero__brand">
+                        <img class="home-hero__logo" src="~/tumicse_logo.png" alt="Logo do Templo de Umbanda Mãe Iansã e Caboclo Sete Estrelas" />
+                        <div class="home-hero__brand-text">
+                            <span class="home-hero__brand-name">@Model.SiteName</span>
+                            <span class="home-hero__brand-subtitle">@Model.CityState</span>
+                        </div>
+                    </div>
+                    <h1 class="home-hero__title">@Model.HeroTitle</h1>
+                    <p class="home-hero__subtitle">@Model.HeroSubtitle</p>
+                    <div class="home-hero__actions">
+                        <a class="btn btn-brand-primary" href="#sobre">Conheça nossa casa</a>
+                        <a class="btn btn-brand-secondary" href="#giras">Veja nossa agenda</a>
+                    </div>
+                    <div class="home-hero__highlights">
+                        @foreach (var highlight in Model.HeroHighlights)
+                        {
+                            <span class="home-hero__pill">@highlight</span>
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="home-hero__visual">
+                        <img class="home-hero__art" src="~/images/tumicse-hero-art.png" alt="Ilustração simbólica inspirada em Mãe Iansã e Caboclo Sete Estrelas" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="sobre" class="home-section">
+    <div class="container">
+        <div class="home-section__heading">
+            <span class="site-section__eyebrow">Sobre o TUMICSE</span>
+            <h2 class="site-section__title">Uma casa de Umbanda Sagrada em São Bernardo do Campo.</h2>
+        </div>
+        <div class="row g-4 align-items-center home-feature">
+            <div class="col-lg-6">
+                <div class="home-section__intro">
+                    <p>
+                        O TUMICSE, Templo de Umbanda Mãe Iansã e Caboclo Sete Estrelas, é uma casa de Umbanda Sagrada localizada em São Bernardo do Campo/SP, com atuação pública desde 2011.
+                    </p>
+                    <p>
+                        Sua identidade está enraizada em acolhimento, caridade, respeito aos fundamentos, desenvolvimento espiritual e ancestralidade, sempre com linguagem serena, institucional e humana.
+                    </p>
+                    <p>
+                        Acompanhe os comunicados da casa pelo Instagram oficial:
+                        <a class="location-panel__link" href="@Model.InstagramUrl" target="_blank" rel="noopener noreferrer">@Model.InstagramHandle</a>.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <figure class="home-feature__media">
+                    <img src="~/images/tumicse-casa-fotos.png" alt="Vivência e encontros no TUMICSE" />
+                </figure>
+            </div>
+        </div>
+        <div class="home-card-grid">
+            @foreach (var card in Model.AboutCards)
+            {
+                <article class="home-card">
+                    <h3 class="home-card__title">@card.Title</h3>
+                    <p class="home-card__text">@card.Description</p>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section id="giras" class="home-section home-section--soft">
+    <div class="container">
+        <div class="home-section__heading">
+            <span class="site-section__eyebrow">Giras e atendimentos</span>
+            <h2 class="site-section__title">Momentos de trabalho espiritual, acolhimento e orientação da casa.</h2>
+        </div>
+        <div class="home-section__intro">
+            <p>
+                As giras do TUMICSE são momentos de trabalho espiritual e acolhimento fraterno. A casa prioriza organização, respeito e condução responsável em cada etapa do atendimento.
+            </p>
+            <p>
+                Agenda, horários, avisos e orientações oficiais devem sempre ser consultados pelos canais da casa, especialmente pelo Instagram oficial.
+            </p>
+        </div>
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-7">
+                <div class="home-card-grid">
+                    @foreach (var card in Model.GiraCards)
+                    {
+                        <article class="home-card home-card--accent">
+                            <h3 class="home-card__title">@card.Title</h3>
+                            <p class="home-card__text">@card.Description</p>
+                        </article>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <aside class="gira-schedule">
+                    <span class="home-card__eyebrow">Giras abertas</span>
+                    <h3 class="home-card__title">Todos os últimos domingos do mês.</h3>
+                    <div class="gira-schedule__list">
+                        @foreach (var item in Model.OpenGiraScheduleItems)
+                        {
+                            <div class="gira-schedule__item">
+                                <span class="gira-schedule__marker" aria-hidden="true"></span>
+                                <span>@item</span>
+                            </div>
+                        }
+                    </div>
+                    <p class="gira-schedule__note">
+                        Para atualizações de agenda, orientações de chegada e avisos da gira, consulte
+                        <a class="location-panel__link" href="@Model.InstagramUrl" target="_blank" rel="noopener noreferrer">@Model.InstagramHandle</a>.
+                    </p>
+                </aside>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="orientacoes" class="home-section">
+    <div class="container">
+        <div class="home-section__heading">
+            <span class="site-section__eyebrow">Orientações ao visitante</span>
+            <h2 class="site-section__title">Presença respeitosa, organizada e consciente.</h2>
+        </div>
+        <div class="visitor-guidelines">
+            @foreach (var guideline in Model.VisitorGuidelines)
+            {
+                <article class="visitor-guidelines__item">
+                    <span class="visitor-guidelines__marker" aria-hidden="true"></span>
+                    <span>@guideline</span>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section id="localizacao" class="home-section">
+    <div class="container">
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-7">
+                <div class="location-panel">
+                    <span class="site-section__eyebrow">Localização</span>
+                    <h2 class="site-section__title">Visite o nosso templo</h2>
+                    <p class="location-panel__text">@Model.Address</p>
+                    <p class="location-panel__text">@Model.CityState</p>
+                    <div class="location-panel__actions">
+                        <a class="btn btn-brand-primary" href="@Model.GoogleMapsUrl" target="_blank" rel="noopener noreferrer">Abrir rota no mapa</a>
+                        @if (Model.HasWhatsApp)
+                        {
+                            <a class="btn btn-brand-secondary" href="@Model.WhatsAppUrl" target="_blank" rel="noopener noreferrer">Contato via WhatsApp</a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <aside class="location-panel location-panel--aside">
+                    <span class="home-card__eyebrow">Canais oficiais</span>
+                    <h3 class="home-card__title">Consulte sempre a casa pelos canais públicos.</h3>
+                    <p class="home-card__text">
+                        Instagram oficial:
+                        <a class="location-panel__link" href="@Model.InstagramUrl" target="_blank" rel="noopener noreferrer">@Model.InstagramHandle</a>
+                    </p>
+                    <p class="home-card__text">
+                        A equipe do terreiro deve ser a referência para dúvidas sobre agenda, chegada, atendimento e funcionamento.
+                    </p>
+                </aside>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="loja" class="home-store">
+    <div class="container">
+        <div class="home-store__panel">
+            <div class="home-store__content">
+                <img class="home-store__image" src="~/images/venha-de-axe.png" alt="Marca da loja Venha de Axé" />
+                <div>
+                    <span class="home-store__eyebrow">Loja da casa</span>
+                    <h3 class="home-card__title">Venha de Axé</h3>
+                    <p class="home-store__text">
+                        A Venha de Axé é a loja mencionada nos canais públicos do TUMICSE. Ela aparece como uma extensão cuidadosa da identidade da casa, sem se confundir com os avisos espirituais e institucionais.
+                    </p>
+                    <a class="home-store__link" href="@Model.StoreUrl" target="_blank" rel="noopener noreferrer">Conhecer @Model.StoreHandle</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

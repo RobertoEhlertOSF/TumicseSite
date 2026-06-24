@@ -1,0 +1,147 @@
+:root {
+  --brand-green: #009846;
+  --brand-green-deep: #0a6f3c;
+  --brand-gold: #f2b705;
+  --brand-gold-soft: #f7e3a3;
+  --brand-navy: #29276f;
+  --brand-gray: #8a8d8f;
+  --brand-red: #d71920;
+  --brand-bg: #fafaf7;
+  --brand-surface: #ffffff;
+  --brand-surface-soft: #f3f6ee;
+  --brand-text: #1f2933;
+  --brand-muted: #5b6875;
+  --brand-border: rgba(31, 41, 51, 0.12);
+  --brand-border-strong: rgba(41, 39, 111, 0.18);
+  --brand-radius: 1.35rem;
+  --brand-radius-sm: 0.9rem;
+  --brand-shadow: 0 18px 45px rgba(31, 41, 51, 0.08);
+  --brand-shadow-soft: 0 10px 24px rgba(41, 39, 111, 0.06);
+  --brand-focus: 0 0 0 0.15rem rgba(250, 250, 247, 0.95), 0 0 0 0.35rem rgba(242, 183, 5, 0.42);
+}
+
+::selection {
+  background: rgba(242, 183, 5, 0.24);
+  color: var(--brand-text);
+}
+
+a,
+button,
+summary,
+input,
+textarea,
+select,
+iframe {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.btn:focus-visible,
+.nav-link:focus-visible,
+.form-check-input:focus-visible {
+  outline: none;
+  box-shadow: var(--brand-focus);
+}
+
+.btn-primary,
+.btn-outline-primary,
+.btn-link,
+.form-control,
+.form-select,
+.page-link,
+.nav-pills .nav-link,
+.dropdown-item,
+.form-check-input,
+.form-floating > .form-control,
+.form-floating > .form-select {
+  border-radius: var(--brand-radius-sm);
+}
+
+.btn-primary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-green), var(--brand-green-deep));
+  border-color: var(--brand-green);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-green-deep), #08572f);
+  border-color: var(--brand-green-deep);
+}
+
+.btn-outline-primary {
+  color: var(--brand-green-deep);
+  border-color: rgba(0, 152, 70, 0.42);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  color: #fff;
+  background-color: var(--brand-green);
+  border-color: var(--brand-green);
+}
+
+.btn-link,
+.link-primary,
+.text-primary {
+  color: var(--brand-navy) !important;
+}
+
+.btn-link:hover,
+.btn-link:focus,
+.link-primary:hover,
+.link-primary:focus {
+  color: var(--brand-green-deep) !important;
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+  border-color: var(--brand-border);
+  background-color: var(--brand-surface);
+  color: var(--brand-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: rgba(242, 183, 5, 0.75);
+  box-shadow: var(--brand-focus);
+}
+
+.form-check-input:checked {
+  background-color: var(--brand-green);
+  border-color: var(--brand-green);
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-navy), var(--brand-green));
+  border-color: transparent;
+}
+
+.card,
+.table,
+.alert,
+.dropdown-menu {
+  border-color: var(--brand-border);
+  box-shadow: var(--brand-shadow-soft);
+}
+
+.page-link {
+  color: var(--brand-navy);
+  border-color: var(--brand-border);
+}
+
+.page-link:hover,
+.page-link:focus {
+  color: var(--brand-green-deep);
+  background-color: rgba(0, 152, 70, 0.08);
+  border-color: rgba(0, 152, 70, 0.18);
+}
