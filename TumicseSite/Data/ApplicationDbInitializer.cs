@@ -199,14 +199,22 @@ public static class ApplicationDbInitializer
 
     public static async Task InitializeAsync(IServiceProvider services, IConfiguration configuration)
     {
+        var runMigrationsOnStartup = configuration.GetValue<bool>("Database:RunMigrationsOnStartup");
+        var seedOnStartup = configuration.GetValue<bool>("Database:SeedOnStartup");
+
+        if (!runMigrationsOnStartup && !seedOnStartup)
+        {
+            return;
+        }
+
         var context = services.GetRequiredService<ApplicationDbContext>();
 
-        if (configuration.GetValue<bool>("Database:RunMigrationsOnStartup"))
+        if (runMigrationsOnStartup)
         {
             await context.Database.MigrateAsync();
         }
 
-        if (!configuration.GetValue("Database:SeedOnStartup", true))
+        if (!seedOnStartup)
         {
             return;
         }
