@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TumicseSite.Models;
 
 namespace TumicseSite.Data;
@@ -18,6 +20,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        var usesSqlite = Database.IsSqlite();
 
         // Keep Identity's internal key lengths deterministic across runtime and design-time.
         builder.Entity<IdentityUserLogin<string>>(entity =>
@@ -47,8 +51,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(user => user.IsActive)
                 .HasDefaultValue(true);
 
-            entity.Property(user => user.CreatedAt)
-                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+            ConfigureCreatedAt(entity.Property(user => user.CreatedAt), usesSqlite);
         });
 
         builder.Entity<VideoCategory>(entity =>
@@ -59,8 +62,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasMaxLength(120)
                 .IsRequired();
 
-            entity.Property(category => category.CreatedAt)
-                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+            ConfigureCreatedAt(entity.Property(category => category.CreatedAt), usesSqlite);
 
             entity.HasIndex(category => category.Name)
                 .IsUnique();
@@ -83,8 +85,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasMaxLength(50)
                 .IsRequired();
 
-            entity.Property(video => video.CreatedAt)
-                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+            ConfigureCreatedAt(entity.Property(video => video.CreatedAt), usesSqlite);
 
             entity.HasIndex(video => new { video.VideoCategoryId, video.DisplayOrder });
         });
@@ -129,8 +130,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(item => item.InternalNotes)
                 .HasMaxLength(4000);
 
-            entity.Property(item => item.CreatedAt)
-                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+            ConfigureCreatedAt(entity.Property(item => item.CreatedAt), usesSqlite);
 
             entity.HasIndex(item => item.StartDate);
         });
@@ -150,8 +150,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(section => section.Content)
                 .HasMaxLength(4000);
 
-            entity.Property(section => section.CreatedAt)
-                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+            ConfigureCreatedAt(entity.Property(section => section.CreatedAt), usesSqlite);
 
             entity.HasIndex(section => section.Key)
                 .IsUnique();
@@ -169,8 +168,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasMaxLength(2000)
                 .IsRequired();
 
-            entity.Property(setting => setting.CreatedAt)
-                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+            ConfigureCreatedAt(entity.Property(setting => setting.CreatedAt), usesSqlite);
 
             entity.HasIndex(setting => setting.Key)
                 .IsUnique();
@@ -194,13 +192,41 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(log => log.Details)
                 .HasMaxLength(4000);
 
-            entity.Property(log => log.CreatedAt)
-                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+            ConfigureCreatedAt(entity.Property(log => log.CreatedAt), usesSqlite);
 
             entity.HasOne(log => log.User)
                 .WithMany(user => user.AuditLogs)
                 .HasForeignKey(log => log.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
+
+        if (usesSqlite)
+        {
+            ConfigureSqliteDateTimeOffsets(builder);
+        }
+    }
+
+    private static void ConfigureCreatedAt(PropertyBuilder<DateTimeOffset> property, bool usesSqlite)
+    {
+        if (!usesSqlite)
+        {
+            property.HasDefaultValueSql("SYSDATETIMEOFFSET()");
+        }
+    }
+
+    private static void ConfigureSqliteDateTimeOffsets(ModelBuilder builder)
+    {
+        var converter = new DateTimeOffsetToBinaryConverter();
+
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties()
+                         .Where(property =>
+                             property.ClrType == typeof(DateTimeOffset) ||
+                             property.ClrType == typeof(DateTimeOffset?)))
+            {
+                property.SetValueConverter(converter);
+            }
+        }
     }
 }

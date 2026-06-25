@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: tumicse-site-test
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Render
+      - key: Database__Provider
+        value: Sqlite
+      - key: Database__RunMigrationsOnStartup
+        value: "false"
+      - key: Database__EnsureCreatedOnStartup
+        value: "true"
+      - key: Database__SeedOnStartup
+        value: "true"
+      - key: ConnectionStrings__DefaultConnection
+        value: Data Source=/tmp/tumicse/tumicse-test.db
+      - key: DataProtection__KeysPath
+        value: /tmp/tumicse/keys
+      - key: SeedAdmin__Email
+        value: admin.teste@tumicse.local
+      - key: SeedAdmin__DisplayName
+        value: Administrador de Teste
+      - key: SeedAdmin__Password
+        sync: false

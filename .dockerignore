@@ -1,0 +1,16 @@
+.git
+.vs
+.agents
+.codex
+bin
+obj
+publish
+publish-monster
+tmp
+.monster-deploy-worktree
+*.user
+*.suo
+*.log
+*.publishsettings
+TumicseSite/bin
+TumicseSite/obj
