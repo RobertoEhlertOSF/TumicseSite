@@ -1,4 +1,6 @@
 param(
+    [string]$PublishDir = ".\publish-monster",
+    [switch]$DeployToGitRepository,
     [string]$DeployRepoPath = "..\TumicseSite-Deploy",
     [string]$CommitMessage = "Publish TumicseSite",
     [switch]$SkipPush
@@ -73,6 +75,24 @@ function Assert-SafeProductionConfig {
     }
 }
 
+function Assert-PublishOutput {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    Assert-RequiredFile (Join-Path $Path "web.config")
+    Assert-RequiredFile (Join-Path $Path "TumicseSite.dll")
+    Assert-RequiredFile (Join-Path $Path "TumicseSite.deps.json")
+    Assert-RequiredFile (Join-Path $Path "TumicseSite.runtimeconfig.json")
+    Assert-RequiredFile (Join-Path $Path "Microsoft.Data.SqlClient.dll")
+    Assert-ForbiddenPath (Join-Path $Path "appsettings.Development.json")
+    Assert-ForbiddenPath (Join-Path $Path "dotnet-tools.json")
+    Assert-ForbiddenPath (Join-Path $Path "publish-monster")
+    Assert-ForbiddenPath (Join-Path $Path "TumicseSite")
+    Assert-SafeProductionConfig (Join-Path $Path "appsettings.Production.json")
+}
+
 function Remove-DirectorySafely {
     param(
         [Parameter(Mandatory = $true)]
@@ -110,17 +130,38 @@ function Clear-DeployRepository {
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = [System.IO.Path]::GetFullPath($repoRoot)
 $projectPath = Join-Path $repoRoot "TumicseSite\TumicseSite.csproj"
-$publishDir = Join-Path $repoRoot "publish-monster"
+
+if ([System.IO.Path]::IsPathRooted($PublishDir)) {
+    $publishDirFullPath = [System.IO.Path]::GetFullPath($PublishDir)
+}
+else {
+    $publishDirFullPath = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $PublishDir))
+}
+
+if (-not (Test-Path -LiteralPath $projectPath -PathType Leaf)) {
+    throw "Project file not found: $projectPath"
+}
+
+Invoke-Checked "git" @("-C", $repoRoot, "rev-parse", "--is-inside-work-tree")
+Invoke-Checked "dotnet" @("clean", $projectPath, "-c", "Release")
+Invoke-Checked "dotnet" @("restore", $projectPath)
+Invoke-Checked "dotnet" @("build", $projectPath, "-c", "Release", "--no-restore")
+Remove-DirectorySafely -Path $publishDirFullPath -AllowedRoot $repoRoot
+Invoke-Checked "dotnet" @("publish", $projectPath, "-c", "Release", "-o", $publishDirFullPath, "--no-restore")
+
+Assert-PublishOutput -Path $publishDirFullPath
+
+if (-not $DeployToGitRepository) {
+    Write-Host "MonsterASP publish package is ready: $publishDirFullPath"
+    Write-Host "Upload the contents of that folder to the MonsterASP website root. Do not upload the folder itself."
+    exit 0
+}
 
 if ([System.IO.Path]::IsPathRooted($DeployRepoPath)) {
     $deployRepoRoot = [System.IO.Path]::GetFullPath($DeployRepoPath)
 }
 else {
     $deployRepoRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $DeployRepoPath))
-}
-
-if (-not (Test-Path -LiteralPath $projectPath -PathType Leaf)) {
-    throw "Project file not found: $projectPath"
 }
 
 if (-not (Test-Path -LiteralPath $deployRepoRoot -PathType Container)) {
@@ -135,7 +176,6 @@ if ($deployRepoRoot.Equals($repoRoot, [System.StringComparison]::OrdinalIgnoreCa
     throw "Deploy repository path cannot be the source repository root."
 }
 
-Invoke-Checked "git" @("-C", $repoRoot, "rev-parse", "--is-inside-work-tree")
 Invoke-Checked "git" @("-C", $deployRepoRoot, "rev-parse", "--is-inside-work-tree")
 
 $currentDeployBranch = (& git -C $deployRepoRoot branch --show-current).Trim()
@@ -148,39 +188,13 @@ if ($currentDeployBranch -ne "main") {
     Invoke-Checked "git" @("-C", $deployRepoRoot, "switch", "main")
 }
 
-Invoke-Checked "dotnet" @("clean", $projectPath, "-c", "Release")
-Invoke-Checked "dotnet" @("restore", $projectPath)
-Invoke-Checked "dotnet" @("build", $projectPath, "-c", "Release", "--no-restore")
-Remove-DirectorySafely -Path $publishDir -AllowedRoot $repoRoot
-Invoke-Checked "dotnet" @("publish", $projectPath, "-c", "Release", "-o", $publishDir, "--no-restore")
-
-Assert-RequiredFile (Join-Path $publishDir "web.config")
-Assert-RequiredFile (Join-Path $publishDir "TumicseSite.dll")
-Assert-RequiredFile (Join-Path $publishDir "TumicseSite.deps.json")
-Assert-RequiredFile (Join-Path $publishDir "TumicseSite.runtimeconfig.json")
-Assert-RequiredFile (Join-Path $publishDir "Microsoft.Data.SqlClient.dll")
-Assert-ForbiddenPath (Join-Path $publishDir "appsettings.Development.json")
-Assert-ForbiddenPath (Join-Path $publishDir "dotnet-tools.json")
-Assert-SafeProductionConfig (Join-Path $publishDir "appsettings.Production.json")
-
 Clear-DeployRepository -DeployRepoRoot $deployRepoRoot
 
-Get-ChildItem -LiteralPath $publishDir -Force | ForEach-Object {
+Get-ChildItem -LiteralPath $publishDirFullPath -Force | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination $deployRepoRoot -Recurse -Force
 }
 
-Assert-RequiredFile (Join-Path $deployRepoRoot "web.config")
-Assert-RequiredFile (Join-Path $deployRepoRoot "TumicseSite.dll")
-Assert-RequiredFile (Join-Path $deployRepoRoot "TumicseSite.deps.json")
-Assert-RequiredFile (Join-Path $deployRepoRoot "TumicseSite.runtimeconfig.json")
-Assert-RequiredFile (Join-Path $deployRepoRoot "Microsoft.Data.SqlClient.dll")
-Assert-ForbiddenPath (Join-Path $deployRepoRoot "appsettings.Development.json")
-Assert-ForbiddenPath (Join-Path $deployRepoRoot "dotnet-tools.json")
-Assert-SafeProductionConfig (Join-Path $deployRepoRoot "appsettings.Production.json")
-
-if (Test-Path -LiteralPath (Join-Path $deployRepoRoot "publish-monster")) {
-    throw "Invalid deploy repository layout: publish-monster was copied as a subfolder."
-}
+Assert-PublishOutput -Path $deployRepoRoot
 
 Invoke-Checked "git" @("-C", $deployRepoRoot, "add", ".")
 Invoke-Checked "git" @("-C", $deployRepoRoot, "commit", "--allow-empty", "-m", $CommitMessage)
