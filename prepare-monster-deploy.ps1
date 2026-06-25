@@ -63,6 +63,10 @@ function Assert-SafeProductionConfig {
         throw "Do not put Command Timeout in appsettings.Production.json. Configure command timeout in UseSqlServer instead."
     }
 
+    if ($content -notmatch '(?i)TrustServerCertificate\s*=\s*True') {
+        throw "appsettings.Production.json must include TrustServerCertificate=True in the DefaultConnection placeholder."
+    }
+
     $allowedPlaceholders = @("", "__SET_IN_SERVER__", "SENHA_REAL", "SENHA_REAL_AQUI", "CHANGE_ME", "YOUR_PASSWORD")
     $matches = [regex]::Matches($content, '(?i)\b(?:Password|Pwd)\s*=\s*([^;"}]+)')
 
