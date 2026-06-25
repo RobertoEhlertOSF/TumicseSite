@@ -200,7 +200,16 @@ public static class ApplicationDbInitializer
     public static async Task InitializeAsync(IServiceProvider services, IConfiguration configuration)
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        await context.Database.MigrateAsync();
+
+        if (configuration.GetValue<bool>("Database:RunMigrationsOnStartup"))
+        {
+            await context.Database.MigrateAsync();
+        }
+
+        if (!configuration.GetValue("Database:SeedOnStartup", true))
+        {
+            return;
+        }
 
         await SeedRolesAsync(services);
         await SeedSiteSettingsAsync(context);
