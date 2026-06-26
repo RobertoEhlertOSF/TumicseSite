@@ -1,13 +1,17 @@
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text;
 using TumicseSite.Models;
 using TumicseSite.Services;
 using TumicseSite.ViewModels;
 
 namespace TumicseSite.Controllers;
 
-public class HomeController(ISiteSettingsService siteSettingsService) : Controller
+public class HomeController(
+    ISiteSettingsService siteSettingsService,
+    IWebHostEnvironment webHostEnvironment) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
@@ -113,7 +117,44 @@ public class HomeController(ISiteSettingsService siteSettingsService) : Controll
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+        WriteExceptionLog(HttpContext, webHostEnvironment, requestId);
+
+        return View(new ErrorViewModel { RequestId = requestId });
+    }
+
+    private static void WriteExceptionLog(HttpContext httpContext, IWebHostEnvironment environment, string? requestId)
+    {
+        var exceptionFeature = httpContext.Features.Get<IExceptionHandlerPathFeature>();
+
+        if (exceptionFeature?.Error is null)
+        {
+            return;
+        }
+
+        try
+        {
+            var logsDirectory = Path.Combine(environment.ContentRootPath, "logs");
+            Directory.CreateDirectory(logsDirectory);
+
+            var logPath = Path.Combine(logsDirectory, $"runtime-errors-{DateTimeOffset.UtcNow:yyyyMMdd}.log");
+            var log = new StringBuilder()
+                .AppendLine("----")
+                .AppendLine($"UTC: {DateTimeOffset.UtcNow:O}")
+                .AppendLine($"RequestId: {requestId}")
+                .AppendLine($"Method: {httpContext.Request.Method}")
+                .AppendLine($"Path: {exceptionFeature.Path}")
+                .AppendLine($"QueryString: {httpContext.Request.QueryString}")
+                .AppendLine($"User: {httpContext.User.Identity?.Name ?? "(anonymous)"}")
+                .AppendLine(exceptionFeature.Error.ToString())
+                .ToString();
+
+            System.IO.File.AppendAllText(logPath, log);
+        }
+        catch
+        {
+            // Best-effort production diagnostics only; never fail the error page.
+        }
     }
 
     private static IReadOnlyList<LessonGroupDefinition> BuildLessonCatalog() =>
