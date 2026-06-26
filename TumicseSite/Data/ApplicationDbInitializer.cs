@@ -201,8 +201,9 @@ public static class ApplicationDbInitializer
     {
         var runMigrationsOnStartup = configuration.GetValue<bool>("Database:RunMigrationsOnStartup");
         var seedOnStartup = configuration.GetValue<bool>("Database:SeedOnStartup");
+        var seedAdminOnStartup = configuration.GetValue<bool>("Database:SeedAdminOnStartup");
 
-        if (!runMigrationsOnStartup && !seedOnStartup)
+        if (!runMigrationsOnStartup && !seedOnStartup && !seedAdminOnStartup)
         {
             return;
         }
@@ -216,6 +217,12 @@ public static class ApplicationDbInitializer
 
         if (!seedOnStartup)
         {
+            if (seedAdminOnStartup)
+            {
+                await SeedRolesAsync(services);
+                await SeedAdminAsync(services, configuration);
+            }
+
             return;
         }
 
@@ -223,7 +230,11 @@ public static class ApplicationDbInitializer
         await SeedSiteSettingsAsync(context);
         await SeedVideoCatalogAsync(context);
         await SeedEventsAsync(context);
-        await SeedAdminAsync(services, configuration);
+
+        if (seedAdminOnStartup)
+        {
+            await SeedAdminAsync(services, configuration);
+        }
     }
 
     private static async Task SeedRolesAsync(IServiceProvider services)
