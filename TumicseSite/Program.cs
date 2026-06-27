@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using TumicseSite.Data;
 using TumicseSite.Identity;
 using TumicseSite.Models;
@@ -10,9 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+connectionString = NormalizeSqlServerConnectionString(connectionString);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sqlOptions =>
+    {
+        sqlOptions.CommandTimeout(180);
+        sqlOptions.EnableRetryOnFailure();
+    }));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
@@ -74,3 +80,15 @@ app.MapRazorPages()
    .WithStaticAssets();
 
 app.Run();
+
+static string NormalizeSqlServerConnectionString(string connectionString)
+{
+    var sqlConnectionString = new SqlConnectionStringBuilder(connectionString)
+    {
+        TrustServerCertificate = true
+    };
+
+    sqlConnectionString["Encrypt"] = "True";
+
+    return sqlConnectionString.ConnectionString;
+}
